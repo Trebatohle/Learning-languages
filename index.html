@@ -187,28 +187,28 @@
                         <div class="text-xs font-bold text-white">Hallo!</div>
                         <div class="text-[11px] text-dark-muted">Ahoj! / Dobrý den!</div>
                     </div>
-                    <button onclick="speakText('Hallo!')" class="text-brand-500 hover:text-brand-600 p-1"><i class="fas fa-volume-up"></i></button>
+                    <button onclick="speakText('Hallo!', 'de')" class="text-brand-500 hover:text-brand-600 p-1"><i class="fas fa-volume-up"></i></button>
                 </div>
                 <div class="bg-dark-bg border border-dark-border p-3 rounded-lg flex items-center justify-between">
                     <div>
                         <div class="text-xs font-bold text-white">Wie heißt du?</div>
                         <div class="text-[11px] text-dark-muted">Jak se jmenuješ?</div>
                     </div>
-                    <button onclick="speakText('Wie heißt du?')" class="text-brand-500 hover:text-brand-600 p-1"><i class="fas fa-volume-up"></i></button>
+                    <button onclick="speakText('Wie heißt du?', 'de')" class="text-brand-500 hover:text-brand-600 p-1"><i class="fas fa-volume-up"></i></button>
                 </div>
                 <div class="bg-dark-bg border border-dark-border p-3 rounded-lg flex items-center justify-between">
                     <div>
                         <div class="text-xs font-bold text-white">Ich heiße...</div>
                         <div class="text-[11px] text-dark-muted">Jmenuji se...</div>
                     </div>
-                    <button onclick="speakText('Ich heiße')" class="text-brand-500 hover:text-brand-600 p-1"><i class="fas fa-volume-up"></i></button>
+                    <button onclick="speakText('Ich heiße', 'de')" class="text-brand-500 hover:text-brand-600 p-1"><i class="fas fa-volume-up"></i></button>
                 </div>
                 <div class="bg-dark-bg border border-dark-border p-3 rounded-lg flex items-center justify-between">
                     <div>
                         <div class="text-xs font-bold text-white">Wie geht es dir?</div>
                         <div class="text-[11px] text-dark-muted">Jak se máš?</div>
                     </div>
-                    <button onclick="speakText('Wie geht es dir?')" class="text-brand-500 hover:text-brand-600 p-1"><i class="fas fa-volume-up"></i></button>
+                    <button onclick="speakText('Wie geht es dir?', 'de')" class="text-brand-500 hover:text-brand-600 p-1"><i class="fas fa-volume-up"></i></button>
                 </div>
             </div>
         </aside>
@@ -220,6 +220,18 @@
         let speechEnabled = true;
         let isRecording = false;
         let recognition = null;
+        let availableVoices = [];
+
+        // Preload browser speech voices
+        function loadVoices() {
+            if ('speechSynthesis' in window) {
+                availableVoices = window.speechSynthesis.getVoices();
+            }
+        }
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+            loadVoices();
+        }
 
         // Speech Recognition Setup
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -257,12 +269,39 @@
             }
         }
 
-        function speakText(text) {
-            if (!speechEnabled) return;
-            // Odstranění interpunkce pro plynulé čtení bez hlášení teček a čárek
+        // Upravené mluvení: Výběr ženského hlasu
+        function speakText(text, lang = 'de') {
+            if (!speechEnabled || !('speechSynthesis' in window)) return;
+            
+            // Odstranění interpunkce pro plynulé čtení
             const cleanText = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
             const utterance = new SpeechSynthesisUtterance(cleanText);
-            utterance.lang = 'cs-CZ'; // Česky s přízvukem podle požadavku
+
+            if (availableVoices.length === 0) {
+                availableVoices = window.speechSynthesis.getVoices();
+            }
+
+            if (lang === 'de') {
+                utterance.lang = 'de-DE';
+                // Vyhledat německý ženský hlas (Katja, Hedda, Maren, Victoria nebo jakýkoliv ženský hlas)
+                const femaleGermanVoice = availableVoices.find(v => 
+                    v.lang.startsWith('de') && (
+                        v.name.toLowerCase().includes('female') ||
+                        v.name.toLowerCase().includes('katja') ||
+                        v.name.toLowerCase().includes('hedda') ||
+                        v.name.toLowerCase().includes('maren') ||
+                        v.name.toLowerCase().includes('zira') ||
+                        v.name.toLowerCase().includes('gudrun')
+                    )
+                ) || availableVoices.find(v => v.lang.startsWith('de'));
+                
+                if (femaleGermanVoice) utterance.voice = femaleGermanVoice;
+            } else {
+                utterance.lang = 'cs-CZ';
+                const czechVoice = availableVoices.find(v => v.lang.startsWith('cs'));
+                if (czechVoice) utterance.voice = czechVoice;
+            }
+
             window.speechSynthesis.speak(utterance);
         }
 
@@ -271,6 +310,8 @@
             if (translateText.classList.contains('hidden')) {
                 translateText.classList.remove('hidden');
                 btn.innerHTML = '<i class="fas fa-eye-slash"></i> Skrýt překlad';
+                // Přečte český překlad českým hlasem
+                speakText(translateText.innerText, 'cs');
             } else {
                 translateText.classList.add('hidden');
                 btn.innerHTML = '<i class="fas fa-language"></i> Zobrazit český překlad';
@@ -337,7 +378,7 @@
             `;
             container.insertAdjacentHTML('beforeend', html);
             container.scrollTop = container.scrollHeight;
-            speakText(de);
+            speakText(de, 'de');
         }
 
         // Rule-Based Conversational Engine
