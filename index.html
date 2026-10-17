@@ -222,12 +222,12 @@
         let recognition = null;
         let availableVoices = [];
 
-        // Preload browser speech voices
         function loadVoices() {
             if ('speechSynthesis' in window) {
                 availableVoices = window.speechSynthesis.getVoices();
             }
         }
+        
         if ('speechSynthesis' in window) {
             window.speechSynthesis.onvoiceschanged = loadVoices;
             loadVoices();
@@ -269,11 +269,11 @@
             }
         }
 
-        // Upravené mluvení: Výběr ženského hlasu
+        // Vylepšená volba výhradně ženského hlasu
         function speakText(text, lang = 'de') {
             if (!speechEnabled || !('speechSynthesis' in window)) return;
             
-            // Odstranění interpunkce pro plynulé čtení
+            // Odstranění interpunkce (nečte tečky, čárky atd.)
             const cleanText = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
             const utterance = new SpeechSynthesisUtterance(cleanText);
 
@@ -283,21 +283,27 @@
 
             if (lang === 'de') {
                 utterance.lang = 'de-DE';
-                // Vyhledat německý ženský hlas (Katja, Hedda, Maren, Victoria nebo jakýkoliv ženský hlas)
+                utterance.pitch = 1.1; // Mírně vyšší tón pro zaručení ženského hlasu
+
+                // Hledání výhradně ženského německého hlasu
                 const femaleGermanVoice = availableVoices.find(v => 
                     v.lang.startsWith('de') && (
                         v.name.toLowerCase().includes('female') ||
                         v.name.toLowerCase().includes('katja') ||
+                        v.name.toLowerCase().includes('marlene') ||
+                        v.name.toLowerCase().includes('vikki') ||
                         v.name.toLowerCase().includes('hedda') ||
                         v.name.toLowerCase().includes('maren') ||
                         v.name.toLowerCase().includes('zira') ||
-                        v.name.toLowerCase().includes('gudrun')
+                        v.name.toLowerCase().includes('gudrun') ||
+                        v.name.toLowerCase().includes('google deutsch')
                     )
                 ) || availableVoices.find(v => v.lang.startsWith('de'));
                 
                 if (femaleGermanVoice) utterance.voice = femaleGermanVoice;
             } else {
                 utterance.lang = 'cs-CZ';
+                utterance.pitch = 1.0;
                 const czechVoice = availableVoices.find(v => v.lang.startsWith('cs'));
                 if (czechVoice) utterance.voice = czechVoice;
             }
@@ -310,7 +316,6 @@
             if (translateText.classList.contains('hidden')) {
                 translateText.classList.remove('hidden');
                 btn.innerHTML = '<i class="fas fa-eye-slash"></i> Skrýt překlad';
-                // Přečte český překlad českým hlasem
                 speakText(translateText.innerText, 'cs');
             } else {
                 translateText.classList.add('hidden');
