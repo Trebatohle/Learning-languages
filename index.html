@@ -1,439 +1,236 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="cs" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Frau Elsa - AI Tutor Němčiny</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                            900: '#881337',
+                        },
+                        dark: {
+                            bg: '#0f172a',
+                            card: '#1e293b',
+                            border: '#334155',
+                            text: '#f8fafc',
+                            muted: '#94a3b8'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
     <style>
-        :root {
-            --bg-main: #0f172a;
-            --bg-card: #1e293b;
-            --primary: #e11d48;
-            --accent: #f43f5e;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #334155;
-            --user-msg: #9f1239;
-            --elsa-msg: #1e293b;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body {
-            background-color: var(--bg-main);
-            color: var(--text-main);
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .top-bar {
-            background-color: var(--bg-card);
-            padding: 12px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .avatar-mini {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--primary);
-        }
-
-        .brand-text h1 {
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .badge {
-            background: var(--primary);
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-weight: bold;
-        }
-
-        .brand-text p {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .btn-control {
-            background: var(--bg-main);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.85rem;
-        }
-
-        .app-container {
-            display: flex;
-            flex: 1;
-            overflow: hidden;
-        }
-
-        .sidebar-left {
-            width: 300px;
-            background-color: var(--bg-card);
-            border-right: 1px solid var(--border);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            overflow-y: auto;
-        }
-
-        .tutor-card {
-            text-align: center;
-            background: var(--bg-main);
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-        }
-
-        .tutor-img {
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-bottom: 12px;
-            border: 3px solid var(--primary);
-        }
-
-        .status-online {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.8rem;
-            color: #10b981;
-        }
-
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #10b981;
-            border-radius: 50%;
-        }
-
-        .topics-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .topics-title {
-            font-size: 0.8rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: var(--text-muted);
-        }
-
-        .topic-btn {
-            background: var(--bg-main);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 10px 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: left;
-        }
-
-        .topic-btn.active {
-            border-color: var(--primary);
-            background: rgba(225, 29, 72, 0.15);
-        }
-
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            background-color: var(--bg-main);
-        }
-
-        .messages-container {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .message {
-            display: flex;
-            gap: 12px;
-            max-width: 80%;
-        }
-
-        .message.user {
-            align-self: flex-end;
-            flex-direction: row-reverse;
-        }
-
-        .message-avatar {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        .message-content {
-            background: var(--elsa-msg);
-            border: 1px solid var(--border);
-            padding: 12px 16px;
-            border-radius: 12px;
-        }
-
-        .message.user .message-content {
-            background: var(--user-msg);
-            border-color: var(--primary);
-        }
-
-        .message-translation {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            border-top: 1px dashed var(--border);
-            padding-top: 6px;
-            margin-top: 6px;
-        }
-
-        .btn-translate {
-            font-size: 0.75rem;
-            color: var(--accent);
-            background: none;
-            border: none;
-            cursor: pointer;
-            margin-top: 4px;
-        }
-
-        .bottom-panel {
-            background: var(--bg-card);
-            border-top: 1px solid var(--border);
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .quick-replies {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .quick-btn {
-            background: var(--bg-main);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: left;
-        }
-
-        .quick-de {
-            font-weight: bold;
-            font-size: 0.85rem;
-            color: #fecdd3;
-        }
-
-        .quick-cs {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .input-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
-
-        .mic-btn {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: var(--primary);
-            border: none;
-            color: white;
-            font-size: 1.2rem;
-            cursor: pointer;
-        }
-
-        .text-input {
-            flex: 1;
-            background: var(--bg-main);
-            border: 1px solid var(--border);
-            color: var(--text-main);
-            padding: 12px 16px;
-            border-radius: 24px;
-            outline: none;
-        }
-
-        .send-btn {
-            background: var(--primary);
-            border: none;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 24px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-
-        .sidebar-right {
-            width: 260px;
-            background-color: var(--bg-card);
-            border-left: 1px solid var(--border);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            overflow-y: auto;
-        }
-
-        .vocab-item {
-            background: var(--bg-main);
-            border: 1px solid var(--border);
-            padding: 10px;
-            border-radius: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .vocab-de { font-weight: bold; font-size: 0.85rem; }
-        .vocab-cs { font-size: 0.75rem; color: var(--text-muted); }
-        .vocab-play { background: none; border: none; color: var(--accent); cursor: pointer; }
+        body { background-color: #0f172a; color: #f8fafc; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #e11d48; }
     </style>
 </head>
-<body>
+<body class="h-full flex flex-col font-sans antialiased overflow-hidden">
 
-    <div class="top-bar">
-        <div class="brand">
-            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80" class="avatar-mini" alt="Elsa">
-            <div class="brand-text">
-                <h1>Frau Elsa <span class="badge">AI TUTOR A1</span></h1>
-                <p>Fotorealistická osobní lektorka němčiny</p>
+    <!-- Top Navigation -->
+    <header class="bg-dark-card border-b border-dark-border px-6 py-3 flex items-center justify-between z-10">
+        <div class="flex items-center space-x-3">
+            <div class="relative">
+                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80" alt="Frau Elsa" class="w-10 h-10 rounded-full object-cover border-2 border-brand-600">
+                <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-dark-card rounded-full"></span>
+            </div>
+            <div>
+                <h1 class="font-display font-bold text-lg flex items-center gap-2">
+                    Frau Elsa 
+                    <span class="bg-brand-600/20 text-brand-500 border border-brand-600/30 text-xs px-2 py-0.5 rounded font-mono">AI TUTOR A1</span>
+                </h1>
+                <p class="text-xs text-dark-muted">Fotorealistická osobní lektorka němčiny</p>
             </div>
         </div>
-        <button class="btn-control" id="toggleSpeech" onclick="toggleSpeech()"><i class="fas fa-volume-up"></i> Hlas zapnut</button>
-    </div>
 
-    <div class="app-container">
+        <div class="flex items-center space-x-3">
+            <button id="speechToggleBtn" onclick="toggleSpeech()" class="px-3 py-1.5 bg-dark-bg border border-dark-border hover:border-brand-600 text-xs font-medium rounded-lg transition-colors flex items-center gap-2">
+                <i class="fas fa-volume-up text-brand-500"></i>
+                <span>Hlas zapnut</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex overflow-hidden">
         
-        <div class="sidebar-left">
-            <div class="tutor-card">
-                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=500&q=80" class="tutor-img" alt="Elsa">
-                <h2>Frau Elsa</h2>
-                <p>"Hallo! Ich bin Elsa. Schön dich zu sehen!"</p>
-                <div class="status-online">
-                    <div class="status-dot"></div> Připravena k mluvení
-                </div>
-            </div>
-
-            <div class="topics-title">Konverzační témata</div>
-            <div class="topics-list">
-                <button class="topic-btn active" onclick="setTopic('greetings')">1. Pozdravy & Představení</button>
-                <button class="topic-btn" onclick="setTopic('cafe')">2. V restauraci a kavárně</button>
-                <button class="topic-btn" onclick="setTopic('hobbies')">3. Koníčky a volný čas</button>
-                <button class="topic-btn" onclick="setTopic('directions')">4. Ptáme se na cestu</button>
-            </div>
-        </div>
-
-        <div class="chat-area">
-            <div class="messages-container" id="chatMessages">
-                <div class="message elsa">
-                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80" class="message-avatar" alt="Elsa">
-                    <div class="message-content">
-                        <div class="message-text">Hallo! Ich bin Frau Elsa. 😊 Schön, dass du da bist! Lass uns zusammen Deutsch sprechen. Wie heißt du?</div>
-                        <button class="btn-translate" onclick="toggleTranslation(this)">Zobrazit český překlad</button>
-                        <div class="message-translation" style="display: none;">Ahoj! Já jsem paní Elsa. Ráda tě vidím! Pojďme mluvit německy. Jak se jmenuješ?</div>
+        <!-- Sidebar - Left (Topics) -->
+        <aside class="w-80 bg-dark-card border-r border-dark-border p-5 flex flex-col justify-between hidden md:flex">
+            <div class="space-y-6">
+                <!-- Profile Summary Card -->
+                <div class="bg-dark-bg p-4 rounded-xl border border-dark-border text-center relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-b from-brand-600/10 to-transparent pointer-events-none"></div>
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=500&q=80" alt="Frau Elsa" class="w-28 h-28 mx-auto rounded-full object-cover border-4 border-brand-600 shadow-lg shadow-brand-600/20 mb-3">
+                    <h2 class="font-display font-bold text-lg text-white">Frau Elsa</h2>
+                    <p class="text-xs text-brand-500 italic mb-2">"Hallo! Ich bin Elsa. Schön dich zu sehen!"</p>
+                    <div class="inline-flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Připravena k mluvení
                     </div>
                 </div>
+
+                <!-- Topic Selector -->
+                <div>
+                    <h3 class="text-xs font-semibold text-dark-muted uppercase tracking-wider mb-3 px-1">Konverzační témata (A1)</h3>
+                    <nav class="space-y-1.5" id="topicNav">
+                        <button onclick="selectTopic('greetings', this)" class="topic-btn w-full text-left px-3.5 py-2.5 rounded-lg border border-brand-600 bg-brand-600/10 text-white font-medium text-sm flex items-center gap-3 transition-all">
+                            <i class="fas fa-comments text-brand-500 w-4"></i> 1. Pozdravy & Představení
+                        </button>
+                        <button onclick="selectTopic('cafe', this)" class="topic-btn w-full text-left px-3.5 py-2.5 rounded-lg border border-dark-border hover:border-brand-600/50 bg-dark-bg/50 text-dark-muted hover:text-white font-medium text-sm flex items-center gap-3 transition-all">
+                            <i class="fas fa-coffee text-amber-500 w-4"></i> 2. V kavárně & restauraci
+                        </button>
+                        <button onclick="selectTopic('hobbies', this)" class="topic-btn w-full text-left px-3.5 py-2.5 rounded-lg border border-dark-border hover:border-brand-600/50 bg-dark-bg/50 text-dark-muted hover:text-white font-medium text-sm flex items-center gap-3 transition-all">
+                            <i class="fas fa-heart text-rose-500 w-4"></i> 3. Koníčky & volný čas
+                        </button>
+                        <button onclick="selectTopic('directions', this)" class="topic-btn w-full text-left px-3.5 py-2.5 rounded-lg border border-dark-border hover:border-brand-600/50 bg-dark-bg/50 text-dark-muted hover:text-white font-medium text-sm flex items-center gap-3 transition-all">
+                            <i class="fas fa-map-marker-alt text-emerald-500 w-4"></i> 4. Ptáme se na cestu
+                        </button>
+                    </nav>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Engine -->
+        <main class="flex-1 flex flex-col bg-dark-bg relative">
+            
+            <!-- Messages Scroll Area -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-4" id="chatContainer">
+                
+                <!-- Initial Elsa Welcome Message -->
+                <div class="flex items-start gap-3 max-w-2xl">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80" class="w-9 h-9 rounded-full object-cover border border-brand-600 flex-shrink-0 mt-1">
+                    <div class="bg-dark-card border border-dark-border p-4 rounded-2xl rounded-tl-none space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="font-semibold text-xs text-brand-500">Frau Elsa</span>
+                            <span class="text-[10px] text-dark-muted bg-dark-bg px-1.5 py-0.5 rounded border border-dark-border">Lektorka</span>
+                        </div>
+                        <p class="text-sm text-dark-text leading-relaxed">Hallo! Ich bin Frau Elsa. 😊 Schön, dass du da bist! Lass uns zusammen Deutsch sprechen. Wie heißt du?</p>
+                        <div class="pt-2 border-t border-dark-border/50">
+                            <button onclick="toggleTranslate(this)" class="text-xs text-brand-500 hover:text-brand-600 font-medium flex items-center gap-1">
+                                <i class="fas fa-language"></i> Zobrazit český překlad
+                            </button>
+                            <p class="text-xs text-dark-muted hidden mt-1 italic">Ahoj! Já jsem paní Elsa. Ráda tě vidím! Pojďme mluvit německy. Jak se jmenuješ?</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
 
-            <div class="bottom-panel">
-                <div class="quick-replies" id="quickReplies">
-                    <button class="quick-btn" onclick="sendQuickReply('Hallo Elsa! Ich heiße...', 'Ahoj Elso! Jmenuji se...')">
-                        <div class="quick-de">Hallo Elsa! Ich heiße...</div>
-                        <div class="quick-cs">Ahoj Elso! Jmenuji se...</div>
-                    </button>
-                    <button class="quick-btn" onclick="sendQuickReply('Mir geht es sehr gut, danke!', 'Mám se velmi dobře, děkuji!')">
-                        <div class="quick-de">Mir geht es sehr gut, danke!</div>
-                        <div class="quick-cs">Mám se velmi dobře, děkuji!</div>
-                    </button>
-                    <button class="quick-btn" onclick="sendQuickReply('Wie geht es dir, Elsa?', 'Jak se máš ty, Elso?')">
-                        <div class="quick-de">Wie geht es dir, Elsa?</div>
-                        <div class="quick-cs">Jak se máš ty, Elso?</div>
-                    </button>
+            <!-- Bottom Control Panel & Quick Answers -->
+            <div class="bg-dark-card border-t border-dark-border p-4 space-y-3">
+                
+                <!-- Quick Context Replies (Exact 3 options) -->
+                <div>
+                    <span class="text-[10px] font-semibold text-dark-muted uppercase tracking-wider block mb-2">⚡ Doporučené rychlé odpovědi podle kontextu:</span>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-2" id="quickReplies">
+                        <button onclick="sendQuickReply('Hallo Elsa! Ich heiße...', 'Ahoj Elso! Jmenuji se...')" class="bg-dark-bg hover:bg-brand-600/10 border border-dark-border hover:border-brand-600 p-2.5 rounded-xl text-left transition-all">
+                            <div class="text-xs font-semibold text-rose-200">"Hallo Elsa! Ich heiße..."</div>
+                            <div class="text-[11px] text-dark-muted">Ahoj Elso! Jmenuji se...</div>
+                        </button>
+                        <button onclick="sendQuickReply('Mir geht es sehr gut, danke!', 'Mám se velmi dobře, děkuji!')" class="bg-dark-bg hover:bg-brand-600/10 border border-dark-border hover:border-brand-600 p-2.5 rounded-xl text-left transition-all">
+                            <div class="text-xs font-semibold text-rose-200">"Mir geht es sehr gut, danke!"</div>
+                            <div class="text-[11px] text-dark-muted">Mám se velmi dobře, děkuji!</div>
+                        </button>
+                        <button onclick="sendQuickReply('Wie geht es dir, Elsa?', 'Jak se máš ty, Elso?')" class="bg-dark-bg hover:bg-brand-600/10 border border-dark-border hover:border-brand-600 p-2.5 rounded-xl text-left transition-all">
+                            <div class="text-xs font-semibold text-rose-200">"Wie geht es dir, Elsa?"</div>
+                            <div class="text-[11px] text-dark-muted">Jak se máš ty, Elso?</div>
+                        </button>
+                    </div>
                 </div>
 
-                <div class="input-row">
-                    <button class="mic-btn" id="micBtn" onclick="toggleRecording()"><i class="fas fa-microphone"></i></button>
-                    <input type="text" class="text-input" id="userInput" placeholder="Napište zprávu..." onkeypress="handleKeyPress(event)">
-                    <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+                <!-- Input Controls (Microphone + Text) -->
+                <div class="flex items-center gap-2 pt-1">
+                    <button id="micBtn" onclick="toggleRecording()" class="w-12 h-12 bg-brand-600 hover:bg-brand-700 text-white rounded-full flex items-center justify-center transition-all flex-shrink-0 shadow-lg shadow-brand-600/30">
+                        <i class="fas fa-microphone text-lg"></i>
+                    </button>
+                    <input type="text" id="userInput" onkeypress="handleKey(event)" placeholder="Napište nebo řekněte zprávu..." class="flex-1 bg-dark-bg border border-dark-border focus:border-brand-600 text-sm text-dark-text px-4 py-3 rounded-full outline-none transition-all">
+                    <button onclick="sendMessage()" class="bg-brand-600 hover:bg-brand-700 text-white font-medium px-5 py-3 rounded-full transition-all flex items-center gap-2 text-sm">
+                        <span>Odeslat</span>
+                        <i class="fas fa-paper-plane text-xs"></i>
+                    </button>
                 </div>
             </div>
-        </div>
 
-        <div class="sidebar-right">
-            <div class="topics-title">Slovníček lekce</div>
-            <div class="vocab-item">
-                <div>
-                    <div class="vocab-de">Hallo!</div>
-                    <div class="vocab-cs">Ahoj! / Dobrý den!</div>
+        </main>
+
+        <!-- Sidebar - Right (Vocabulary) -->
+        <aside class="w-72 bg-dark-card border-l border-dark-border p-5 hidden lg:block overflow-y-auto">
+            <h3 class="text-xs font-semibold text-dark-muted uppercase tracking-wider mb-4 flex items-center justify-between">
+                <span>Slovníček lekce</span>
+                <i class="fas fa-book text-brand-500"></i>
+            </h3>
+            <div class="space-y-2">
+                <div class="bg-dark-bg border border-dark-border p-3 rounded-lg flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold text-white">Hallo!</div>
+                        <div class="text-[11px] text-dark-muted">Ahoj! / Dobrý den!</div>
+                    </div>
+                    <button onclick="speakText('Hallo!')" class="text-brand-500 hover:text-brand-600 p-1"><i class="fas fa-volume-up"></i></button>
                 </div>
-                <button class="vocab-play" onclick="speakText('Hallo!')"><i class="fas fa-volume-up"></i></button>
-            </div>
-            <div class="vocab-item">
-                <div>
-                    <div class="vocab-de">Wie heißt du?</div>
-                    <div class="vocab-cs">Jak se jmenuješ?</div>
+                <div class="bg-dark-bg border border-dark-border p-3 rounded-lg flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold text-white">Wie heißt du?</div>
+                        <div class="text-[11px] text-dark-muted">Jak se jmenuješ?</div>
+                    </div>
+                    <button onclick="speakText('Wie heißt du?')" class="text-brand-500 hover:text-brand-600 p-1"><i class="fas fa-volume-up"></i></button>
                 </div>
-                <button class="vocab-play" onclick="speakText('Wie heißt du?')"><i class="fas fa-volume-up"></i></button>
-            </div>
-            <div class="vocab-item">
-                <div>
-                    <div class="vocab-de">Ich heiße...</div>
-                    <div class="vocab-cs">Jmenuji se...</div>
+                <div class="bg-dark-bg border border-dark-border p-3 rounded-lg flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold text-white">Ich heiße...</div>
+                        <div class="text-[11px] text-dark-muted">Jmenuji se...</div>
+                    </div>
+                    <button onclick="speakText('Ich heiße')" class="text-brand-500 hover:text-brand-600 p-1"><i class="fas fa-volume-up"></i></button>
                 </div>
-                <button class="vocab-play" onclick="speakText('Ich heiße')"><i class="fas fa-volume-up"></i></button>
+                <div class="bg-dark-bg border border-dark-border p-3 rounded-lg flex items-center justify-between">
+                    <div>
+                        <div class="text-xs font-bold text-white">Wie geht es dir?</div>
+                        <div class="text-[11px] text-dark-muted">Jak se máš?</div>
+                    </div>
+                    <button onclick="speakText('Wie geht es dir?')" class="text-brand-500 hover:text-brand-600 p-1"><i class="fas fa-volume-up"></i></button>
+                </div>
             </div>
-        </div>
+        </aside>
 
     </div>
 
+    <!-- Rule-Based AI Engine Script -->
     <script>
-        let isRecording = false;
         let speechEnabled = true;
+        let isRecording = false;
         let recognition = null;
 
+        // Speech Recognition Setup
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
             recognition.lang = 'de-DE';
+            recognition.continuous = true;
+            recognition.interimResults = false;
 
             recognition.onresult = function(event) {
-                const text = event.results[0][0].transcript;
+                const text = event.results[event.results.length - 1][0].transcript;
                 document.getElementById('userInput').value = text;
                 sendMessage();
             };
@@ -441,42 +238,46 @@
 
         function toggleSpeech() {
             speechEnabled = !speechEnabled;
-            document.getElementById('toggleSpeech').innerHTML = speechEnabled ? '<i class="fas fa-volume-up"></i> Hlas zapnut' : '<i class="fas fa-volume-mute"></i> Hlas vypnut';
+            const btn = document.getElementById('speechToggleBtn');
+            btn.innerHTML = speechEnabled 
+                ? '<i class="fas fa-volume-up text-brand-500"></i><span>Hlas zapnut</span>' 
+                : '<i class="fas fa-volume-mute text-dark-muted"></i><span>Hlas vypnut</span>';
         }
 
         function toggleRecording() {
             const btn = document.getElementById('micBtn');
             if (!isRecording) {
                 isRecording = true;
-                btn.style.background = '#ef4444';
+                btn.classList.add('bg-rose-700', 'animate-pulse');
                 if (recognition) recognition.start();
             } else {
                 isRecording = false;
-                btn.style.background = '#e11d48';
+                btn.classList.remove('bg-rose-700', 'animate-pulse');
                 if (recognition) recognition.stop();
-            }
-        }
-
-        function toggleTranslation(btn) {
-            const translation = btn.nextElementSibling;
-            if (translation.style.display === 'none') {
-                translation.style.display = 'block';
-                btn.innerText = 'Skrýt český překlad';
-            } else {
-                translation.style.display = 'none';
-                btn.innerText = 'Zobrazit český překlad';
             }
         }
 
         function speakText(text) {
             if (!speechEnabled) return;
+            // Odstranění interpunkce pro plynulé čtení bez hlášení teček a čárek
             const cleanText = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
             const utterance = new SpeechSynthesisUtterance(cleanText);
-            utterance.lang = 'cs-CZ';
+            utterance.lang = 'cs-CZ'; // Česky s přízvukem podle požadavku
             window.speechSynthesis.speak(utterance);
         }
 
-        function handleKeyPress(e) {
+        function toggleTranslate(btn) {
+            const translateText = btn.nextElementSibling;
+            if (translateText.classList.contains('hidden')) {
+                translateText.classList.remove('hidden');
+                btn.innerHTML = '<i class="fas fa-eye-slash"></i> Skrýt překlad';
+            } else {
+                translateText.classList.add('hidden');
+                btn.innerHTML = '<i class="fas fa-language"></i> Zobrazit český překlad';
+            }
+        }
+
+        function handleKey(e) {
             if (e.key === 'Enter') sendMessage();
         }
 
@@ -485,37 +286,61 @@
             const text = input.value.trim();
             if (!text) return;
 
-            appendMessage('user', text, '');
+            appendUserMessage(text);
             input.value = '';
 
-            setTimeout(() => { generateElsaResponse(text); }, 600);
+            setTimeout(() => {
+                generateElsaResponse(text);
+            }, 500);
         }
 
         function sendQuickReply(de, cs) {
-            appendMessage('user', de, cs);
-            setTimeout(() => { generateElsaResponse(de); }, 600);
+            appendUserMessage(de);
+            setTimeout(() => {
+                generateElsaResponse(de);
+            }, 500);
         }
 
-        function appendMessage(sender, deText, csText) {
-            const container = document.getElementById('chatMessages');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${sender}`;
-
-            const avatar = sender === 'user' 
-                ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80'
-                : 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80';
-
-            let html = `<img src="${avatar}" class="message-avatar"><div class="message-content"><div class="message-text">${deText}</div>`;
-            if (csText) html += `<button class="btn-translate" onclick="toggleTranslation(this)">Zobrazit český překlad</button><div class="message-translation" style="display: none;">${csText}</div>`;
-            html += `</div>`;
-
-            msgDiv.innerHTML = html;
-            container.appendChild(msgDiv);
+        function appendUserMessage(text) {
+            const container = document.getElementById('chatContainer');
+            const html = `
+                <div class="flex items-start gap-3 justify-end">
+                    <div class="bg-brand-600/90 border border-brand-500 p-3.5 rounded-2xl rounded-tr-none text-right max-w-xl">
+                        <p class="text-sm text-white font-medium">${text}</p>
+                    </div>
+                    <img src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80" class="w-8 h-8 rounded-full object-cover border border-brand-500 flex-shrink-0 mt-1">
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
             container.scrollTop = container.scrollHeight;
-
-            if (sender === 'elsa') speakText(deText);
         }
 
+        function appendElsaMessage(de, cs) {
+            const container = document.getElementById('chatContainer');
+            const html = `
+                <div class="flex items-start gap-3 max-w-2xl">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80" class="w-9 h-9 rounded-full object-cover border border-brand-600 flex-shrink-0 mt-1">
+                    <div class="bg-dark-card border border-dark-border p-4 rounded-2xl rounded-tl-none space-y-2">
+                        <div class="flex items-center gap-2">
+                            <span class="font-semibold text-xs text-brand-500">Frau Elsa</span>
+                            <span class="text-[10px] text-dark-muted bg-dark-bg px-1.5 py-0.5 rounded border border-dark-border">Lektorka</span>
+                        </div>
+                        <p class="text-sm text-dark-text leading-relaxed">${de}</p>
+                        <div class="pt-2 border-t border-dark-border/50">
+                            <button onclick="toggleTranslate(this)" class="text-xs text-brand-500 hover:text-brand-600 font-medium flex items-center gap-1">
+                                <i class="fas fa-language"></i> Zobrazit český překlad
+                            </button>
+                            <p class="text-xs text-dark-muted hidden mt-1 italic">${cs}</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', html);
+            container.scrollTop = container.scrollHeight;
+            speakText(de);
+        }
+
+        // Rule-Based Conversational Engine
         function generateElsaResponse(userText) {
             const lower = userText.toLowerCase();
             let de = "Das ist sehr interessant! Erzähl mir mehr darüber.";
@@ -560,7 +385,7 @@
                 ];
             }
 
-            appendMessage('elsa', de, cs);
+            appendElsaMessage(de, cs);
             updateQuickReplies(quick);
         }
 
@@ -568,32 +393,40 @@
             const container = document.getElementById('quickReplies');
             container.innerHTML = '';
             replies.forEach(r => {
-                const btn = document.createElement('button');
-                btn.className = 'quick-btn';
-                btn.onclick = () => sendQuickReply(r.de, r.cs);
-                btn.innerHTML = `<div class="quick-de">${r.de}</div><div class="quick-cs">${r.cs}</div>`;
-                container.appendChild(btn);
+                const btn = `
+                    <button onclick="sendQuickReply('${r.de}', '${r.cs}')" class="bg-dark-bg hover:bg-brand-600/10 border border-dark-border hover:border-brand-600 p-2.5 rounded-xl text-left transition-all">
+                        <div class="text-xs font-semibold text-rose-200">"${r.de}"</div>
+                        <div class="text-[11px] text-dark-muted">${r.cs}</div>
+                    </button>
+                `;
+                container.insertAdjacentHTML('beforeend', btn);
             });
         }
 
-        function setTopic(topic) {
-            if (topic === 'greetings') generateElsaResponse('hallo');
-            else if (topic === 'cafe') {
-                appendMessage('elsa', 'Hallo im Café! Was möchten Sie bestellen? Einen Kaffee oder Tee?', 'Ahoj v kavárně! Co si přejete objednat? Kávu nebo čaj?');
+        function selectTopic(topic, element) {
+            document.querySelectorAll('.topic-btn').forEach(b => {
+                b.className = "topic-btn w-full text-left px-3.5 py-2.5 rounded-lg border border-dark-border hover:border-brand-600/50 bg-dark-bg/50 text-dark-muted hover:text-white font-medium text-sm flex items-center gap-3 transition-all";
+            });
+            element.className = "topic-btn w-full text-left px-3.5 py-2.5 rounded-lg border border-brand-600 bg-brand-600/10 text-white font-medium text-sm flex items-center gap-3 transition-all";
+
+            if (topic === 'greetings') {
+                generateElsaResponse('hallo');
+            } else if (topic === 'cafe') {
+                appendElsaMessage('Hallo im Café! Was möchten Sie bestellen? Einen Kaffee oder Tee?', 'Ahoj v kavárně! Co si přejete objednat? Kávu nebo čaj?');
                 updateQuickReplies([
                     { de: "Einen Kaffee, bitte!", cs: "Jednu kávu, prosím!" },
                     { de: "Ich möchte einen Tee.", cs: "Chtěl/a bych čaj." },
                     { de: "Was kostet das?", cs: "Kolik to stojí?" }
                 ]);
             } else if (topic === 'hobbies') {
-                appendMessage('elsa', 'Was sind deine Hobbys? Spielst du gern Fußball oder hörst du Musik?', 'Jaké jsou tvé koníčky? Hráváš rád fotbal nebo posloucháš hudbu?');
+                appendElsaMessage('Was sind deine Hobbys? Spielst du gern Fußball oder hörst du Musik?', 'Jaké jsou tvé koníčky? Hráváš rád fotbal nebo posloucháš hudbu?');
                 updateQuickReplies([
                     { de: "Ich höre gern Musik.", cs: "Rád/a poslouchám hudbu." },
                     { de: "Ich mache Sport.", cs: "Sportuji." },
                     { de: "Ich lese Bücher.", cs: "Čtu knihy." }
                 ]);
             } else if (topic === 'directions') {
-                appendMessage('elsa', 'Entschuldigung! Wo ist der Bahnhof?', 'Promiňte! Kde je nádraží?');
+                appendElsaMessage('Entschuldigung! Wo ist der Bahnhof?', 'Promiňte! Kde je nádraží?');
                 updateQuickReplies([
                     { de: "Geradeaus und dann links.", cs: "Rovně a pak doleva." },
                     { de: "Es ist nicht weit.", cs: "Není to daleko." },
