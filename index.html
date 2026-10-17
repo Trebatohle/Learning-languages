@@ -3,15 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frau Elsa - AI Tutor Němčiny</title>
+    <title>Frau Elsa - AI Tutor Němčiny (Gemini Powered)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- ResponsiveVoice API pro GARANTOVANÝ ženský hlas zdarma -->
-    <script src="https://code.responsivevoice.org/responsivevoice.js?key=FREE"></script>
 
     <script>
         tailwind.config = {
@@ -62,13 +60,17 @@
             <div>
                 <h1 class="font-display font-bold text-lg flex items-center gap-2">
                     Frau Elsa 
-                    <span class="bg-brand-600/20 text-brand-500 border border-brand-600/30 text-xs px-2 py-0.5 rounded font-mono">AI TUTOR A1</span>
+                    <span class="bg-brand-600/20 text-brand-500 border border-brand-600/30 text-xs px-2 py-0.5 rounded font-mono">GEMINI AI A1</span>
                 </h1>
-                <p class="text-xs text-dark-muted">Fotorealistická osobní lektorka němčiny</p>
+                <p class="text-xs text-dark-muted">Inteligentní osobní lektorka němčiny</p>
             </div>
         </div>
 
         <div class="flex items-center space-x-3">
+            <button onclick="openApiKeyModal()" class="px-3 py-1.5 bg-dark-bg border border-dark-border hover:border-brand-600 text-xs font-medium rounded-lg transition-colors flex items-center gap-2 text-rose-300">
+                <i class="fas fa-key text-brand-500"></i>
+                <span id="apiKeyStatus">Nastavit API klíč</span>
+            </button>
             <button id="speechToggleBtn" onclick="toggleSpeech()" class="px-3 py-1.5 bg-dark-bg border border-dark-border hover:border-brand-600 text-xs font-medium rounded-lg transition-colors flex items-center gap-2">
                 <i class="fas fa-volume-up text-brand-500"></i>
                 <span>Hlas zapnut</span>
@@ -218,13 +220,76 @@
 
     </div>
 
-    <!-- Speech Synthesizer Script -->
+    <!-- API Key Modal -->
+    <div id="apiKeyModal" class="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-dark-card border border-dark-border rounded-2xl max-w-md w-full p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-dark-border pb-3">
+                <h3 class="font-display font-bold text-lg flex items-center gap-2">
+                    <i class="fas fa-key text-brand-500"></i> Nastavení Google Gemini API
+                </h3>
+                <button onclick="closeApiKeyModal()" class="text-dark-muted hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            <p class="text-xs text-dark-muted leading-relaxed">
+                Vložte váš **Google Gemini API klíč** (získaný zdarma na Google AI Studio). Klíč bude bezpečně uložen pouze ve vašem lokálním prohlížeči.
+            </p>
+            <input type="password" id="apiKeyInput" placeholder="Vložte API klíč (AIzaSy...)" class="w-full bg-dark-bg border border-dark-border focus:border-brand-600 text-sm px-4 py-3 rounded-xl outline-none text-white">
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeApiKeyModal()" class="px-4 py-2 bg-dark-bg border border-dark-border text-xs font-medium rounded-xl">Zrušit</button>
+                <button onclick="saveApiKey()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-medium rounded-xl">Uložit klíč</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script Area -->
     <script>
         let speechEnabled = true;
         let isRecording = false;
         let recognition = null;
+        let currentAudio = null;
+        let conversationHistory = [];
 
-        // Recognition
+        window.onload = function() {
+            checkApiKeyStatus();
+        };
+
+        function getApiKey() {
+            return localStorage.getItem('elsa_gemini_api_key') || '';
+        }
+
+        function checkApiKeyStatus() {
+            const key = getApiKey();
+            const statusBtn = document.getElementById('apiKeyStatus');
+            if (key) {
+                statusBtn.innerText = "API Klíč Aktivní";
+                statusBtn.parentElement.classList.remove('text-rose-300');
+                statusBtn.parentElement.classList.add('text-emerald-400');
+            } else {
+                statusBtn.innerText = "Nastavit API klíč";
+                statusBtn.parentElement.classList.add('text-rose-300');
+                statusBtn.parentElement.classList.remove('text-emerald-400');
+            }
+        }
+
+        function openApiKeyModal() {
+            document.getElementById('apiKeyInput').value = getApiKey();
+            document.getElementById('apiKeyModal').classList.remove('hidden');
+        }
+
+        function closeApiKeyModal() {
+            document.getElementById('apiKeyModal').classList.add('hidden');
+        }
+
+        function saveApiKey() {
+            const key = document.getElementById('apiKeyInput').value.trim();
+            if (key) {
+                localStorage.setItem('elsa_gemini_api_key', key);
+            } else {
+                localStorage.removeItem('elsa_gemini_api_key');
+            }
+            checkApiKeyStatus();
+            closeApiKeyModal();
+        }
+
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
@@ -245,6 +310,9 @@
             btn.innerHTML = speechEnabled 
                 ? '<i class="fas fa-volume-up text-brand-500"></i><span>Hlas zapnut</span>' 
                 : '<i class="fas fa-volume-mute text-dark-muted"></i><span>Hlas vypnut</span>';
+            if (!speechEnabled && currentAudio) {
+                currentAudio.pause();
+            }
         }
 
         function toggleRecording() {
@@ -260,31 +328,30 @@
             }
         }
 
-        // ZARUČENÝ ŽENSKÝ HLAS
         function speakText(text, lang = 'de') {
             if (!speechEnabled) return;
 
-            // Odstranění interpunkce
-            const cleanText = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-
-            if (typeof responsiveVoice !== "undefined") {
-                responsiveVoice.cancel();
-                if (lang === 'de') {
-                    // Vynucení krásné německé ženy
-                    responsiveVoice.speak(cleanText, "Deutsch Female", { pitch: 1.1, rate: 0.9 });
-                } else {
-                    // Vynucení české ženy
-                    responsiveVoice.speak(cleanText, "Czech Female", { pitch: 1.0, rate: 0.95 });
-                }
-            } else if ('speechSynthesis' in window) {
-                // Fallback pokud by se nenačetla knihovna
-                window.speechSynthesis.cancel();
-                const utterance = new SpeechSynthesisUtterance(cleanText);
-                utterance.pitch = 1.3;
-                if (lang === 'de') utterance.lang = 'de-DE';
-                else utterance.lang = 'cs-CZ';
-                window.speechSynthesis.speak(utterance);
+            if (currentAudio) {
+                currentAudio.pause();
             }
+
+            const cleanText = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "").trim();
+            const encodedText = encodeURIComponent(cleanText);
+            
+            let audioUrl = lang === 'de'
+                ? `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodedText}&tl=de&client=tw-ob`
+                : `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodedText}&tl=cs&client=tw-ob`;
+
+            currentAudio = new Audio(audioUrl);
+            currentAudio.play().catch(e => {
+                if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                    const utterance = new SpeechSynthesisUtterance(cleanText);
+                    utterance.lang = lang === 'de' ? 'de-DE' : 'cs-CZ';
+                    utterance.pitch = 1.3;
+                    window.speechSynthesis.speak(utterance);
+                }
+            });
         }
 
         function toggleTranslate(btn) {
@@ -311,16 +378,25 @@
             appendUserMessage(text);
             input.value = '';
 
-            setTimeout(() => {
-                generateElsaResponse(text);
-            }, 500);
+            const apiKey = getApiKey();
+            if (!apiKey) {
+                openApiKeyModal();
+                appendElsaMessage("Bitte gib zuerst deinen Gemini API Key ein!", "Prosím, nejprve zadejte svůj Gemini API klíč!");
+                return;
+            }
+
+            fetchGeminiResponse(text, apiKey);
         }
 
         function sendQuickReply(de, cs) {
             appendUserMessage(de);
-            setTimeout(() => {
-                generateElsaResponse(de);
-            }, 500);
+            const apiKey = getApiKey();
+            if (!apiKey) {
+                openApiKeyModal();
+                appendElsaMessage("Bitte gib zuerst deinen Gemini API Key ein!", "Prosím, nejprve zadejte svůj Gemini API klíč!");
+                return;
+            }
+            fetchGeminiResponse(de, apiKey);
         }
 
         function appendUserMessage(text) {
@@ -345,7 +421,7 @@
                     <div class="bg-dark-card border border-dark-border p-4 rounded-2xl rounded-tl-none space-y-2">
                         <div class="flex items-center gap-2">
                             <span class="font-semibold text-xs text-brand-500">Frau Elsa</span>
-                            <span class="text-[10px] text-dark-muted bg-dark-bg px-1.5 py-0.5 rounded border border-dark-border">Lektorka</span>
+                            <span class="text-[10px] text-dark-muted bg-dark-bg px-1.5 py-0.5 rounded border border-dark-border">AI Lektorka</span>
                         </div>
                         <p class="text-sm text-dark-text leading-relaxed">${de}</p>
                         <div class="pt-2 border-t border-dark-border/50">
@@ -362,58 +438,67 @@
             speakText(de, 'de');
         }
 
-        // Rule-Based Conversational Engine
-        function generateElsaResponse(userText) {
-            const lower = userText.toLowerCase();
-            let de = "Das ist sehr interessant! Erzähl mir mehr darüber.";
-            let cs = "To je velmi zajímavé! Pověz mi o tom více.";
-            let quick = [
-                { de: "Ich verstehe.", cs: "Rozumím." },
-                { de: "Kannst du das wiederholen?", cs: "Můžeš to zopakovat?" },
-                { de: "Wie sagt man das auf Deutsch?", cs: "Jak se to řekne německy?" }
-            ];
+        async function fetchGeminiResponse(userText, apiKey) {
+            const systemPrompt = `Jsi Frau Elsa, přátelská a sympatická německá lektorka němčiny úrovně A1. Odpovídej výhradně ve formátu JSON s přesně těmito klíči:
+1. "de": Tvoje německá odpověď (jednoduchá, přátelská němčina A1, max 2 krátké věty).
+2. "cs": Přesný český překlad tvojí německé odpovědi.
+3. "quick": Pole přesně 3 objektů s rychlými odpověďmi pro uživatele, kde každý objekt má klíče "de" (německy) a "cs" (česky).
 
-            if (lower.includes('hallo') || lower.includes('ahoj') || lower.includes('tag')) {
-                de = "Hallo! Wie geht es dir heute?";
-                cs = "Ahoj! Jak se dnes máš?";
-                quick = [
-                    { de: "Mir geht es gut!", cs: "Mám se dobře!" },
-                    { de: "Nicht so gut.", cs: "Nic moc." },
-                    { de: "Und wie geht es dir?", cs: "A jak se máš ty?" }
-                ];
-            } else if (lower.includes('heiße') || lower.includes('jmenuji') || lower.includes('název')) {
-                de = "Schön dich kennenzulernen! Woher kommst du?";
-                cs = "Ráda tě poznávám! Odkud pocházíš?";
-                quick = [
-                    { de: "Ich komme aus Tschechien.", cs: "Pocházím z České republiky." },
-                    { de: "Ich wohne in Prag.", cs: "Bydlím v Praze." },
-                    { de: "Und du?", cs: "A ty?" }
-                ];
-            } else if (lower.includes('geht') || lower.includes('máš')) {
-                de = "Mir geht es super, danke der Nachfrage! Was machst du heute Schönes?";
-                cs = "Mám se skvěle, děkuji za optání! Co dnes děláš pěkného?";
-                quick = [
-                    { de: "Ich lerne Deutsch.", cs: "Učím se německy." },
-                    { de: "Ich arbeite.", cs: "Pracuji." },
-                    { de: "Ich entspanne mich.", cs: "Odpočívám." }
-                ];
-            } else if (lower.includes('danke') || lower.includes('díky')) {
-                de = "Sehr gerne! Bitte schön. Hast du noch eine Frage?";
-                cs = "Moc ráda! Není za co. Máš ještě nějakou otázku?";
-                quick = [
-                    { de: "Ja, eine Frage bitte.", cs: "Ano, jednu otázku prosím." },
-                    { de: "Nein, alles klar!", cs: "Ne, všechno je jasné!" },
-                    { de: "Wie sagt man...", cs: "Jak se řekne..." }
-                ];
+Příklad výstupu JSON:
+{
+  "de": "Sehr schön! Deutsch lernen macht Spaß. Was machst du heute?",
+  "cs": "Moc pěkné! Učení němčiny je zábava. Co dnes děláš?",
+  "quick": [
+    {"de": "Ich lerne Deutsch.", "cs": "Učím se německy."},
+    {"de": "Ich gehe spazieren.", "cs": "Jdu na procházku."},
+    {"de": "Ich entspanne mich.", "cs": "Odpočívám."}
+  ]
+}`;
+
+            conversationHistory.push({ role: "user", parts: [{ text: userText }] });
+
+            const payload = {
+                contents: [
+                    { role: "user", parts: [{ text: systemPrompt }] },
+                    ...conversationHistory
+                ],
+                generationConfig: {
+                    responseMimeType: "application/json",
+                    temperature: 0.7
+                }
+            };
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error("Chyba API");
+                }
+
+                const data = await response.json();
+                const rawText = data.candidates[0].content.parts[0].text;
+                const parsed = JSON.parse(rawText);
+
+                conversationHistory.push({ role: "model", parts: [{ text: rawText }] });
+
+                appendElsaMessage(parsed.de, parsed.cs);
+                updateQuickReplies(parsed.quick);
+
+            } catch (err) {
+                console.error("Gemini API Error:", err);
+                appendElsaMessage("Entschuldigung, ich habe das nicht verstanden. Bitte überprüfe deinen API Key.", "Omlouvám se, tomu jsem nerozuměla. Prosím zkontrolujte svůj API klíč.");
             }
-
-            appendElsaMessage(de, cs);
-            updateQuickReplies(quick);
         }
 
         function updateQuickReplies(replies) {
             const container = document.getElementById('quickReplies');
             container.innerHTML = '';
+            if (!replies || !Array.isArray(replies)) return;
+
             replies.forEach(r => {
                 const btn = `
                     <button onclick="sendQuickReply('${r.de}', '${r.cs}')" class="bg-dark-bg hover:bg-brand-600/10 border border-dark-border hover:border-brand-600 p-2.5 rounded-xl text-left transition-all">
@@ -431,29 +516,9 @@
             });
             element.className = "topic-btn w-full text-left px-3.5 py-2.5 rounded-lg border border-brand-600 bg-brand-600/10 text-white font-medium text-sm flex items-center gap-3 transition-all";
 
-            if (topic === 'greetings') {
-                generateElsaResponse('hallo');
-            } else if (topic === 'cafe') {
-                appendElsaMessage('Hallo im Café! Was möchten Sie bestellen? Einen Kaffee oder Tee?', 'Ahoj v kavárně! Co si přejete objednat? Kávu nebo čaj?');
-                updateQuickReplies([
-                    { de: "Einen Kaffee, bitte!", cs: "Jednu kávu, prosím!" },
-                    { de: "Ich möchte einen Tee.", cs: "Chtěl/a bych čaj." },
-                    { de: "Was kostet das?", cs: "Kolik to stojí?" }
-                ]);
-            } else if (topic === 'hobbies') {
-                appendElsaMessage('Was sind deine Hobbys? Spielst du gern Fußball oder hörst du Musik?', 'Jaké jsou tvé koníčky? Hráváš rád fotbal nebo posloucháš hudbu?');
-                updateQuickReplies([
-                    { de: "Ich höre gern Musik.", cs: "Rád/a poslouchám hudbu." },
-                    { de: "Ich mache Sport.", cs: "Sportuji." },
-                    { de: "Ich lese Bücher.", cs: "Čtu knihy." }
-                ]);
-            } else if (topic === 'directions') {
-                appendElsaMessage('Entschuldigung! Wo ist der Bahnhof?', 'Promiňte! Kde je nádraží?');
-                updateQuickReplies([
-                    { de: "Geradeaus und dann links.", cs: "Rovně a pak doleva." },
-                    { de: "Es ist nicht weit.", cs: "Není to daleko." },
-                    { de: "Ich weiß es nicht.", cs: "Já nevím." }
-                ]);
+            const apiKey = getApiKey();
+            if (apiKey) {
+                fetchGeminiResponse(`Wir sprechen jetzt über Thema: ${topic}`, apiKey);
             }
         }
     </script>
