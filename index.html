@@ -44,6 +44,7 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
         }
 
         .brand {
@@ -120,6 +121,7 @@
             flex-direction: column;
             gap: 20px;
             overflow-y: auto;
+            flex-shrink: 0;
         }
 
         .tutor-card {
@@ -206,6 +208,7 @@
             display: flex;
             flex-direction: column;
             background-color: var(--bg-main);
+            overflow: hidden;
         }
 
         .messages-container {
@@ -279,6 +282,7 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
+            flex-shrink: 0;
         }
 
         .quick-replies {
@@ -383,6 +387,7 @@
             flex-direction: column;
             gap: 16px;
             overflow-y: auto;
+            flex-shrink: 0;
         }
 
         .vocab-item {
@@ -421,4 +426,328 @@
             <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80" class="avatar-mini" alt="Frau Elsa">
             <div class="brand-text">
                 <h1>Frau Elsa <span class="badge">AI TUTOR A1</span></h1>
-                <p>Fotorealistická osobní lektorka němčiny</p
+                <p>Fotorealistická osobní lektorka němčiny</p>
+            </div>
+        </div>
+        <div class="controls">
+            <button class="btn-control" id="toggleSpeech" onclick="toggleSpeech()"><i class="fas fa-volume-up"></i> Hlas zapnut</button>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="app-container">
+        
+        <!-- Left Sidebar: Topics -->
+        <div class="sidebar-left">
+            <div class="tutor-card">
+                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=500&q=80" class="tutor-img" alt="Frau Elsa">
+                <h2>Frau Elsa</h2>
+                <p>"Hallo! Ich bin Elsa. Schön dich zu sehen!"</p>
+                <div class="status-online">
+                    <div class="status-dot"></div> Připravena k mluvení
+                </div>
+            </div>
+
+            <div class="topics-title">Konverzační témata (A1)</div>
+            <div class="topics-list">
+                <button class="topic-btn active" onclick="setTopic(event, 'greetings')">
+                    <i class="fas fa-comments"></i> 1. Pozdravy & Představení
+                </button>
+                <button class="topic-btn" onclick="setTopic(event, 'cafe')">
+                    <i class="fas fa-coffee"></i> 2. V restauraci a kavárně
+                </button>
+                <button class="topic-btn" onclick="setTopic(event, 'hobbies')">
+                    <i class="fas fa-heart"></i> 3. Koníčky a volný čas
+                </button>
+                <button class="topic-btn" onclick="setTopic(event, 'directions')">
+                    <i class="fas fa-map-marker-alt"></i> 4. Ptáme se na cestu
+                </button>
+            </div>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area">
+            <div class="messages-container" id="chatMessages">
+                <div class="message elsa">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80" class="message-avatar" alt="Elsa">
+                    <div class="message-content">
+                        <div class="message-text">Hallo! Ich bin Frau Elsa. 😊 Schön, dass du da bist! Lass uns zusammen Deutsch sprechen. Wie heißt du?</div>
+                        <button class="btn-translate" onclick="toggleTranslation(this)">Zobrazit český překlad</button>
+                        <div class="message-translation" style="display: none;">Ahoj! Já jsem paní Elsa. Ráda tě vidím! Pojďme mluvit německy. Jak se jmenuješ?</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bottom Panel -->
+            <div class="bottom-panel">
+                <div class="quick-replies" id="quickReplies">
+                    <button class="quick-btn" onclick="sendQuickReply('Hallo Elsa! Ich heiße...', 'Ahoj Elso! Jmenuji se...')">
+                        <div class="quick-de">Hallo Elsa! Ich heiße...</div>
+                        <div class="quick-cs">Ahoj Elso! Jmenuji se...</div>
+                    </button>
+                    <button class="quick-btn" onclick="sendQuickReply('Mir geht es sehr gut, danke!', 'Mám se velmi dobře, děkuji!')">
+                        <div class="quick-de">Mir geht es sehr gut, danke!</div>
+                        <div class="quick-cs">Mám se velmi dobře, děkuji!</div>
+                    </button>
+                    <button class="quick-btn" onclick="sendQuickReply('Wie geht es dir, Elsa?', 'Jak se máš ty, Elso?')">
+                        <div class="quick-de">Wie geht es dir, Elsa?</div>
+                        <div class="quick-cs">Jak se máš ty, Elso?</div>
+                    </button>
+                </div>
+
+                <div class="input-row">
+                    <button class="mic-btn" id="micBtn" onclick="toggleRecording()"><i class="fas fa-microphone"></i></button>
+                    <input type="text" class="text-input" id="userInput" placeholder="Napište nebo řekněte zprávu..." onkeypress="handleKeyPress(event)">
+                    <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Sidebar: Vocabulary -->
+        <div class="sidebar-right">
+            <div class="topics-title">Slovníček lekce</div>
+            <div class="vocab-item">
+                <div>
+                    <div class="vocab-de">Hallo!</div>
+                    <div class="vocab-cs">Ahoj! / Dobrý den!</div>
+                </div>
+                <button class="vocab-play" onclick="speakText('Hallo!')"><i class="fas fa-volume-up"></i></button>
+            </div>
+            <div class="vocab-item">
+                <div>
+                    <div class="vocab-de">Wie heißt du?</div>
+                    <div class="vocab-cs">Jak se jmenuješ?</div>
+                </div>
+                <button class="vocab-play" onclick="speakText('Wie heißt du?')"><i class="fas fa-volume-up"></i></button>
+            </div>
+            <div class="vocab-item">
+                <div>
+                    <div class="vocab-de">Ich heiße...</div>
+                    <div class="vocab-cs">Jmenuji se...</div>
+                </div>
+                <button class="vocab-play" onclick="speakText('Ich heiße')"><i class="fas fa-volume-up"></i></button>
+            </div>
+            <div class="vocab-item">
+                <div>
+                    <div class="vocab-de">Wie geht es dir?</div>
+                    <div class="vocab-cs">Jak se máš?</div>
+                </div>
+                <button class="vocab-play" onclick="speakText('Wie geht es dir?')"><i class="fas fa-volume-up"></i></button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let isRecording = false;
+        let speechEnabled = true;
+        let recognition = null;
+
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'de-DE';
+            recognition.continuous = true;
+            recognition.interimResults = false;
+
+            recognition.onresult = function(event) {
+                const text = event.results[event.results.length - 1][0].transcript;
+                document.getElementById('userInput').value = text;
+                sendMessage();
+            };
+
+            recognition.onerror = function(event) {
+                console.log('Speech error:', event.error);
+            };
+        }
+
+        function toggleSpeech() {
+            speechEnabled = !speechEnabled;
+            const btn = document.getElementById('toggleSpeech');
+            btn.innerHTML = speechEnabled ? '<i class="fas fa-volume-up"></i> Hlas zapnut' : '<i class="fas fa-volume-mute"></i> Hlas vypnut';
+        }
+
+        function toggleRecording() {
+            const btn = document.getElementById('micBtn');
+            if (!isRecording) {
+                isRecording = true;
+                btn.classList.add('recording');
+                if (recognition) recognition.start();
+            } else {
+                isRecording = false;
+                btn.classList.remove('recording');
+                if (recognition) recognition.stop();
+            }
+        }
+
+        function toggleTranslation(btn) {
+            const translation = btn.nextElementSibling;
+            if (translation.style.display === 'none') {
+                translation.style.display = 'block';
+                btn.innerText = 'Skrýt český překlad';
+            } else {
+                translation.style.display = 'none';
+                btn.innerText = 'Zobrazit český překlad';
+            }
+        }
+
+        function speakText(text) {
+            if (!speechEnabled) return;
+            const cleanText = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+            const utterance = new SpeechSynthesisUtterance(cleanText);
+            utterance.lang = 'cs-CZ';
+            window.speechSynthesis.speak(utterance);
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            appendMessage('user', text, '');
+            input.value = '';
+
+            setTimeout(() => {
+                generateElsaResponse(text);
+            }, 600);
+        }
+
+        function sendQuickReply(de, cs) {
+            appendMessage('user', de, cs);
+            setTimeout(() => {
+                generateElsaResponse(de);
+            }, 600);
+        }
+
+        function appendMessage(sender, deText, csText) {
+            const container = document.getElementById('chatMessages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}`;
+
+            const avatar = sender === 'user' 
+                ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80'
+                : 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80';
+
+            let html = `
+                <img src="${avatar}" class="message-avatar">
+                <div class="message-content">
+                    <div class="message-text">${deText}</div>
+            `;
+
+            if (csText) {
+                html += `
+                    <button class="btn-translate" onclick="toggleTranslation(this)">Zobrazit český překlad</button>
+                    <div class="message-translation" style="display: none;">${csText}</div>
+                `;
+            }
+
+            html += `</div>`;
+            msgDiv.innerHTML = html;
+            container.appendChild(msgDiv);
+            container.scrollTop = container.scrollHeight;
+
+            if (sender === 'elsa') {
+                speakText(deText);
+            }
+        }
+
+        function generateElsaResponse(userText) {
+            const lower = userText.toLowerCase();
+            let de = "Das ist sehr interessant! Erzähl mir mehr darüber.";
+            let cs = "To je velmi zajímavé! Pověz mi o tom více.";
+            let quick = [
+                { de: "Ich verstehe.", cs: "Rozumím." },
+                { de: "Kannst du das wiederholen?", cs: "Můžeš to zopakovat?" },
+                { de: "Wie sagt man das auf Deutsch?", cs: "Jak se to řekne německy?" }
+            ];
+
+            if (lower.includes('hallo') || lower.includes('ahoj') || lower.includes('tag')) {
+                de = "Hallo! Wie geht es dir heute?";
+                cs = "Ahoj! Jak se dnes máš?";
+                quick = [
+                    { de: "Mir geht es gut!", cs: "Mám se dobře!" },
+                    { de: "Nicht so gut.", cs: "Nic moc." },
+                    { de: "Und wie geht es dir?", cs: "A jak se máš ty?" }
+                ];
+            } else if (lower.includes('heiße') || lower.includes('jmenuji') || lower.includes('název')) {
+                de = "Schön dich kennenzulernen! Woher kommst du?";
+                cs = "Ráda tě poznávám! Odkud pocházíš?";
+                quick = [
+                    { de: "Ich komme aus Tschechien.", cs: "Pocházím z České republiky." },
+                    { de: "Ich wohne in Prag.", cs: "Bydlím v Praze." },
+                    { de: "Und du?", cs: "A ty?" }
+                ];
+            } else if (lower.includes('geht') || lower.includes('máš')) {
+                de = "Mir geht es super, danke der Nachfrage! Was machst du heute Schönes?";
+                cs = "Mám se skvěle, děkuji za optání! Co dnes děláš pěkného?";
+                quick = [
+                    { de: "Ich lerne Deutsch.", cs: "Učím se německy." },
+                    { de: "Ich arbeite.", cs: "Pracuji." },
+                    { de: "Ich entspanne mich.", cs: "Odpočívám." }
+                ];
+            } else if (lower.includes('danke') || lower.includes('díky')) {
+                de = "Sehr gerne! Bitte schön. Hast du noch eine Frage?";
+                cs = "Moc ráda! Není za co. Máš ještě nějakou otázku?";
+                quick = [
+                    { de: "Ja, eine Frage bitte.", cs: "Ano, jednu otázku prosím." },
+                    { de: "Nein, alles klar!", cs: "Ne, všechno je jasné!" },
+                    { de: "Wie sagt man...", cs: "Jak se řekne..." }
+                ];
+            }
+
+            appendMessage('elsa', de, cs);
+            updateQuickReplies(quick);
+        }
+
+        function updateQuickReplies(replies) {
+            const container = document.getElementById('quickReplies');
+            container.innerHTML = '';
+            replies.forEach(r => {
+                const btn = document.createElement('button');
+                btn.className = 'quick-btn';
+                btn.onclick = () => sendQuickReply(r.de, r.cs);
+                btn.innerHTML = `
+                    <div class="quick-de">${r.de}</div>
+                    <div class="quick-cs">${r.cs}</div>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function setTopic(evt, topic) {
+            document.querySelectorAll('.topic-btn').forEach(btn => btn.classList.remove('active'));
+            if (evt && evt.currentTarget) {
+                evt.currentTarget.classList.add('active');
+            }
+            if (topic === 'greetings') {
+                generateElsaResponse('hallo');
+            } else if (topic === 'cafe') {
+                appendMessage('elsa', 'Hallo im Café! Was möchten Sie bestellen? Einen Kaffee oder Tee?', 'Ahoj v kavárně! Co si přejete objednat? Kávu nebo čaj?');
+                updateQuickReplies([
+                    { de: "Einen Kaffee, bitte!", cs: "Jednu kávu, prosím!" },
+                    { de: "Ich möchte einen Tee.", cs: "Chtěl/a bych čaj." },
+                    { de: "Was kostet das?", cs: "Kolik to stojí?" }
+                ]);
+            } else if (topic === 'hobbies') {
+                appendMessage('elsa', 'Was sind deine Hobbys? Spielst du gern Fußball oder hörst du Musik?', 'Jaké jsou tvé koníčky? Hráváš rád fotbal nebo posloucháš hudbu?');
+                updateQuickReplies([
+                    { de: "Ich höre gern Musik.", cs: "Rád/a poslouchám hudbu." },
+                    { de: "Ich mache Sport.", cs: "Sportuji." },
+                    { de: "Ich lese Bücher.", cs: "Čtu knihy." }
+                ]);
+            } else if (topic === 'directions') {
+                appendMessage('elsa', 'Entschuldigung! Wo ist der Bahnhof?', 'Promiňte! Kde je nádraží?');
+                updateQuickReplies([
+                    { de: "Geradeaus und dann links.", cs: "Rovně a pak doleva." },
+                    { de: "Es ist nicht weit.", cs: "Není to daleko." },
+                    { de: "Ich weiß es nicht.", cs: "Já nevím." }
+                ]);
+            }
+        }
+    </script>
+</body>
+</html>
