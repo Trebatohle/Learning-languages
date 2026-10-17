@@ -9,9 +9,7 @@
         :root {
             --bg-main: #0f172a;
             --bg-card: #1e293b;
-            --bg-chat: #0f172a;
             --primary: #e11d48;
-            --primary-hover: #be123c;
             --accent: #f43f5e;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
@@ -33,10 +31,8 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            overflow: hidden;
         }
 
-        /* Top Bar */
         .top-bar {
             background-color: var(--bg-card);
             padding: 12px 24px;
@@ -44,7 +40,6 @@
             justify-content: space-between;
             align-items: center;
             border-bottom: 1px solid var(--border);
-            flex-shrink: 0;
         }
 
         .brand {
@@ -81,12 +76,6 @@
             color: var(--text-muted);
         }
 
-        .controls {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-
         .btn-control {
             background: var(--bg-main);
             border: 1px solid var(--border);
@@ -95,25 +84,16 @@
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.85rem;
-            display: flex;
-            align-items: center;
-            gap: 6px;
         }
 
-        .btn-control:hover {
-            border-color: var(--primary);
-        }
-
-        /* Layout */
         .app-container {
             display: flex;
             flex: 1;
             overflow: hidden;
         }
 
-        /* Left Sidebar */
         .sidebar-left {
-            width: 320px;
+            width: 300px;
             background-color: var(--bg-card);
             border-right: 1px solid var(--border);
             padding: 20px;
@@ -121,7 +101,6 @@
             flex-direction: column;
             gap: 20px;
             overflow-y: auto;
-            flex-shrink: 0;
         }
 
         .tutor-card {
@@ -133,25 +112,12 @@
         }
 
         .tutor-img {
-            width: 150px;
-            height: 150px;
+            width: 140px;
+            height: 140px;
             border-radius: 50%;
             object-fit: cover;
             margin-bottom: 12px;
             border: 3px solid var(--primary);
-            box-shadow: 0 0 15px rgba(225, 29, 72, 0.3);
-        }
-
-        .tutor-card h2 {
-            font-size: 1.2rem;
-            margin-bottom: 4px;
-        }
-
-        .tutor-card p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            font-style: italic;
-            margin-bottom: 10px;
         }
 
         .status-online {
@@ -180,7 +146,6 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: var(--text-muted);
-            margin-bottom: 4px;
         }
 
         .topic-btn {
@@ -191,24 +156,18 @@
             border-radius: 8px;
             cursor: pointer;
             text-align: left;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.2s;
         }
 
-        .topic-btn:hover, .topic-btn.active {
+        .topic-btn.active {
             border-color: var(--primary);
-            background: rgba(225, 29, 72, 0.1);
+            background: rgba(225, 29, 72, 0.15);
         }
 
-        /* Main Chat Area */
         .chat-area {
             flex: 1;
             display: flex;
             flex-direction: column;
             background-color: var(--bg-main);
-            overflow: hidden;
         }
 
         .messages-container {
@@ -243,18 +202,11 @@
             border: 1px solid var(--border);
             padding: 12px 16px;
             border-radius: 12px;
-            position: relative;
         }
 
         .message.user .message-content {
             background: var(--user-msg);
             border-color: var(--primary);
-        }
-
-        .message-text {
-            font-size: 0.95rem;
-            line-height: 1.4;
-            margin-bottom: 6px;
         }
 
         .message-translation {
@@ -274,7 +226,6 @@
             margin-top: 4px;
         }
 
-        /* Bottom Controls & Quick Replies */
         .bottom-panel {
             background: var(--bg-card);
             border-top: 1px solid var(--border);
@@ -282,7 +233,6 @@
             display: flex;
             flex-direction: column;
             gap: 12px;
-            flex-shrink: 0;
         }
 
         .quick-replies {
@@ -299,19 +249,12 @@
             border-radius: 8px;
             cursor: pointer;
             text-align: left;
-            transition: all 0.2s;
-        }
-
-        .quick-btn:hover {
-            border-color: var(--primary);
-            background: rgba(225, 29, 72, 0.1);
         }
 
         .quick-de {
             font-weight: bold;
             font-size: 0.85rem;
             color: #fecdd3;
-            margin-bottom: 2px;
         }
 
         .quick-cs {
@@ -334,22 +277,6 @@
             color: white;
             font-size: 1.2rem;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-            flex-shrink: 0;
-        }
-
-        .mic-btn.recording {
-            background: #ef4444;
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
-            70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
-            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
         .text-input {
@@ -360,11 +287,6 @@
             padding: 12px 16px;
             border-radius: 24px;
             outline: none;
-            font-size: 0.95rem;
-        }
-
-        .text-input:focus {
-            border-color: var(--primary);
         }
 
         .send-btn {
@@ -377,9 +299,8 @@
             font-weight: bold;
         }
 
-        /* Right Sidebar - Vocab */
         .sidebar-right {
-            width: 280px;
+            width: 260px;
             background-color: var(--bg-card);
             border-left: 1px solid var(--border);
             padding: 20px;
@@ -387,7 +308,6 @@
             flex-direction: column;
             gap: 16px;
             overflow-y: auto;
-            flex-shrink: 0;
         }
 
         .vocab-item {
@@ -400,47 +320,29 @@
             align-items: center;
         }
 
-        .vocab-de {
-            font-weight: bold;
-            font-size: 0.85rem;
-        }
-
-        .vocab-cs {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
-        .vocab-play {
-            background: none;
-            border: none;
-            color: var(--accent);
-            cursor: pointer;
-        }
+        .vocab-de { font-weight: bold; font-size: 0.85rem; }
+        .vocab-cs { font-size: 0.75rem; color: var(--text-muted); }
+        .vocab-play { background: none; border: none; color: var(--accent); cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <!-- Top Bar -->
     <div class="top-bar">
         <div class="brand">
-            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80" class="avatar-mini" alt="Frau Elsa">
+            <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80" class="avatar-mini" alt="Elsa">
             <div class="brand-text">
                 <h1>Frau Elsa <span class="badge">AI TUTOR A1</span></h1>
                 <p>Fotorealistická osobní lektorka němčiny</p>
             </div>
         </div>
-        <div class="controls">
-            <button class="btn-control" id="toggleSpeech" onclick="toggleSpeech()"><i class="fas fa-volume-up"></i> Hlas zapnut</button>
-        </div>
+        <button class="btn-control" id="toggleSpeech" onclick="toggleSpeech()"><i class="fas fa-volume-up"></i> Hlas zapnut</button>
     </div>
 
-    <!-- Main Container -->
     <div class="app-container">
         
-        <!-- Left Sidebar: Topics -->
         <div class="sidebar-left">
             <div class="tutor-card">
-                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=500&q=80" class="tutor-img" alt="Frau Elsa">
+                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=500&q=80" class="tutor-img" alt="Elsa">
                 <h2>Frau Elsa</h2>
                 <p>"Hallo! Ich bin Elsa. Schön dich zu sehen!"</p>
                 <div class="status-online">
@@ -448,24 +350,15 @@
                 </div>
             </div>
 
-            <div class="topics-title">Konverzační témata (A1)</div>
+            <div class="topics-title">Konverzační témata</div>
             <div class="topics-list">
-                <button class="topic-btn active" onclick="setTopic(event, 'greetings')">
-                    <i class="fas fa-comments"></i> 1. Pozdravy & Představení
-                </button>
-                <button class="topic-btn" onclick="setTopic(event, 'cafe')">
-                    <i class="fas fa-coffee"></i> 2. V restauraci a kavárně
-                </button>
-                <button class="topic-btn" onclick="setTopic(event, 'hobbies')">
-                    <i class="fas fa-heart"></i> 3. Koníčky a volný čas
-                </button>
-                <button class="topic-btn" onclick="setTopic(event, 'directions')">
-                    <i class="fas fa-map-marker-alt"></i> 4. Ptáme se na cestu
-                </button>
+                <button class="topic-btn active" onclick="setTopic('greetings')">1. Pozdravy & Představení</button>
+                <button class="topic-btn" onclick="setTopic('cafe')">2. V restauraci a kavárně</button>
+                <button class="topic-btn" onclick="setTopic('hobbies')">3. Koníčky a volný čas</button>
+                <button class="topic-btn" onclick="setTopic('directions')">4. Ptáme se na cestu</button>
             </div>
         </div>
 
-        <!-- Chat Area -->
         <div class="chat-area">
             <div class="messages-container" id="chatMessages">
                 <div class="message elsa">
@@ -478,7 +371,6 @@
                 </div>
             </div>
 
-            <!-- Bottom Panel -->
             <div class="bottom-panel">
                 <div class="quick-replies" id="quickReplies">
                     <button class="quick-btn" onclick="sendQuickReply('Hallo Elsa! Ich heiße...', 'Ahoj Elso! Jmenuji se...')">
@@ -497,13 +389,12 @@
 
                 <div class="input-row">
                     <button class="mic-btn" id="micBtn" onclick="toggleRecording()"><i class="fas fa-microphone"></i></button>
-                    <input type="text" class="text-input" id="userInput" placeholder="Napište nebo řekněte zprávu..." onkeypress="handleKeyPress(event)">
+                    <input type="text" class="text-input" id="userInput" placeholder="Napište zprávu..." onkeypress="handleKeyPress(event)">
                     <button class="send-btn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
                 </div>
             </div>
         </div>
 
-        <!-- Right Sidebar: Vocabulary -->
         <div class="sidebar-right">
             <div class="topics-title">Slovníček lekce</div>
             <div class="vocab-item">
@@ -527,13 +418,6 @@
                 </div>
                 <button class="vocab-play" onclick="speakText('Ich heiße')"><i class="fas fa-volume-up"></i></button>
             </div>
-            <div class="vocab-item">
-                <div>
-                    <div class="vocab-de">Wie geht es dir?</div>
-                    <div class="vocab-cs">Jak se máš?</div>
-                </div>
-                <button class="vocab-play" onclick="speakText('Wie geht es dir?')"><i class="fas fa-volume-up"></i></button>
-            </div>
         </div>
 
     </div>
@@ -547,35 +431,28 @@
             const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
             recognition = new SpeechRecognition();
             recognition.lang = 'de-DE';
-            recognition.continuous = true;
-            recognition.interimResults = false;
 
             recognition.onresult = function(event) {
-                const text = event.results[event.results.length - 1][0].transcript;
+                const text = event.results[0][0].transcript;
                 document.getElementById('userInput').value = text;
                 sendMessage();
-            };
-
-            recognition.onerror = function(event) {
-                console.log('Speech error:', event.error);
             };
         }
 
         function toggleSpeech() {
             speechEnabled = !speechEnabled;
-            const btn = document.getElementById('toggleSpeech');
-            btn.innerHTML = speechEnabled ? '<i class="fas fa-volume-up"></i> Hlas zapnut' : '<i class="fas fa-volume-mute"></i> Hlas vypnut';
+            document.getElementById('toggleSpeech').innerHTML = speechEnabled ? '<i class="fas fa-volume-up"></i> Hlas zapnut' : '<i class="fas fa-volume-mute"></i> Hlas vypnut';
         }
 
         function toggleRecording() {
             const btn = document.getElementById('micBtn');
             if (!isRecording) {
                 isRecording = true;
-                btn.classList.add('recording');
+                btn.style.background = '#ef4444';
                 if (recognition) recognition.start();
             } else {
                 isRecording = false;
-                btn.classList.remove('recording');
+                btn.style.background = '#e11d48';
                 if (recognition) recognition.stop();
             }
         }
@@ -611,16 +488,12 @@
             appendMessage('user', text, '');
             input.value = '';
 
-            setTimeout(() => {
-                generateElsaResponse(text);
-            }, 600);
+            setTimeout(() => { generateElsaResponse(text); }, 600);
         }
 
         function sendQuickReply(de, cs) {
             appendMessage('user', de, cs);
-            setTimeout(() => {
-                generateElsaResponse(de);
-            }, 600);
+            setTimeout(() => { generateElsaResponse(de); }, 600);
         }
 
         function appendMessage(sender, deText, csText) {
@@ -632,27 +505,15 @@
                 ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80'
                 : 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80';
 
-            let html = `
-                <img src="${avatar}" class="message-avatar">
-                <div class="message-content">
-                    <div class="message-text">${deText}</div>
-            `;
-
-            if (csText) {
-                html += `
-                    <button class="btn-translate" onclick="toggleTranslation(this)">Zobrazit český překlad</button>
-                    <div class="message-translation" style="display: none;">${csText}</div>
-                `;
-            }
-
+            let html = `<img src="${avatar}" class="message-avatar"><div class="message-content"><div class="message-text">${deText}</div>`;
+            if (csText) html += `<button class="btn-translate" onclick="toggleTranslation(this)">Zobrazit český překlad</button><div class="message-translation" style="display: none;">${csText}</div>`;
             html += `</div>`;
+
             msgDiv.innerHTML = html;
             container.appendChild(msgDiv);
             container.scrollTop = container.scrollHeight;
 
-            if (sender === 'elsa') {
-                speakText(deText);
-            }
+            if (sender === 'elsa') speakText(deText);
         }
 
         function generateElsaResponse(userText) {
@@ -710,22 +571,14 @@
                 const btn = document.createElement('button');
                 btn.className = 'quick-btn';
                 btn.onclick = () => sendQuickReply(r.de, r.cs);
-                btn.innerHTML = `
-                    <div class="quick-de">${r.de}</div>
-                    <div class="quick-cs">${r.cs}</div>
-                `;
+                btn.innerHTML = `<div class="quick-de">${r.de}</div><div class="quick-cs">${r.cs}</div>`;
                 container.appendChild(btn);
             });
         }
 
-        function setTopic(evt, topic) {
-            document.querySelectorAll('.topic-btn').forEach(btn => btn.classList.remove('active'));
-            if (evt && evt.currentTarget) {
-                evt.currentTarget.classList.add('active');
-            }
-            if (topic === 'greetings') {
-                generateElsaResponse('hallo');
-            } else if (topic === 'cafe') {
+        function setTopic(topic) {
+            if (topic === 'greetings') generateElsaResponse('hallo');
+            else if (topic === 'cafe') {
                 appendMessage('elsa', 'Hallo im Café! Was möchten Sie bestellen? Einen Kaffee oder Tee?', 'Ahoj v kavárně! Co si přejete objednat? Kávu nebo čaj?');
                 updateQuickReplies([
                     { de: "Einen Kaffee, bitte!", cs: "Jednu kávu, prosím!" },
