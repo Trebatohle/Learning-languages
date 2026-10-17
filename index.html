@@ -215,23 +215,11 @@
 
     </div>
 
-    <!-- Rule-Based AI Engine Script -->
+    <!-- Speech Synthesizer Script -->
     <script>
         let speechEnabled = true;
         let isRecording = false;
         let recognition = null;
-        let availableVoices = [];
-
-        function loadVoices() {
-            if ('speechSynthesis' in window) {
-                availableVoices = window.speechSynthesis.getVoices();
-            }
-        }
-        
-        if ('speechSynthesis' in window) {
-            window.speechSynthesis.onvoiceschanged = loadVoices;
-            loadVoices();
-        }
 
         // Speech Recognition Setup
         if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -269,43 +257,42 @@
             }
         }
 
-        // Vylepšená volba výhradně ženského hlasu
+        // Vylepšený ženský hlas s přirozenou výslovností
         function speakText(text, lang = 'de') {
             if (!speechEnabled || !('speechSynthesis' in window)) return;
             
-            // Odstranění interpunkce (nečte tečky, čárky atd.)
+            // Zastavit jakékoliv rozmluvy
+            window.speechSynthesis.cancel();
+
+            // Vyčištění textu od interpunkce
             const cleanText = text.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, "");
             const utterance = new SpeechSynthesisUtterance(cleanText);
 
-            if (availableVoices.length === 0) {
-                availableVoices = window.speechSynthesis.getVoices();
-            }
+            const voices = window.speechSynthesis.getVoices();
 
             if (lang === 'de') {
                 utterance.lang = 'de-DE';
-                utterance.pitch = 1.1; // Mírně vyšší tón pro zaručení ženského hlasu
+                utterance.pitch = 1.25; // Zvýšení tónu pro jemný ženský hlas
+                utterance.rate = 0.95;  // Mírně pomalejší, čisté tempo pro výuku
 
-                // Hledání výhradně ženského německého hlasu
-                const femaleGermanVoice = availableVoices.find(v => 
-                    v.lang.startsWith('de') && (
-                        v.name.toLowerCase().includes('female') ||
-                        v.name.toLowerCase().includes('katja') ||
-                        v.name.toLowerCase().includes('marlene') ||
-                        v.name.toLowerCase().includes('vikki') ||
-                        v.name.toLowerCase().includes('hedda') ||
-                        v.name.toLowerCase().includes('maren') ||
-                        v.name.toLowerCase().includes('zira') ||
-                        v.name.toLowerCase().includes('gudrun') ||
-                        v.name.toLowerCase().includes('google deutsch')
-                    )
-                ) || availableVoices.find(v => v.lang.startsWith('de'));
-                
-                if (femaleGermanVoice) utterance.voice = femaleGermanVoice;
+                // Vyhledat ženský německý hlas (Google Deutsch, Katja, Marlene, Zira, Hedda, Victoria)
+                const femaleDeVoice = voices.find(v => 
+                    (v.lang.includes('de') || v.lang.includes('DE')) && 
+                    (v.name.includes('Google') || v.name.includes('Katja') || v.name.includes('Marlene') || v.name.includes('Hedda') || v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Victoria'))
+                ) || voices.find(v => v.lang.includes('de') || v.lang.includes('DE'));
+
+                if (femaleDeVoice) {
+                    utterance.voice = femaleDeVoice;
+                }
             } else {
                 utterance.lang = 'cs-CZ';
-                utterance.pitch = 1.0;
-                const czechVoice = availableVoices.find(v => v.lang.startsWith('cs'));
-                if (czechVoice) utterance.voice = czechVoice;
+                utterance.pitch = 1.15;
+                utterance.rate = 0.95;
+
+                const czechVoice = voices.find(v => v.lang.includes('cs') || v.lang.includes('CS'));
+                if (czechVoice) {
+                    utterance.voice = czechVoice;
+                }
             }
 
             window.speechSynthesis.speak(utterance);
@@ -480,6 +467,11 @@
                 ]);
             }
         }
+
+        // Načíst hlasy při otevření
+        window.speechSynthesis.onvoiceschanged = function() {
+            window.speechSynthesis.getVoices();
+        };
     </script>
 </body>
 </html>
