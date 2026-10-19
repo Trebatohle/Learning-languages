@@ -1,311 +1,171 @@
 <!DOCTYPE html>
-<html lang="cs">
+<html lang="cs" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mia - AI Deutschlehrerin (A1)</title>
-    <style>
-        :root {
-            --bg-color: #121212;
-            --panel-bg: #1e1e1e;
-            --chat-bot-bg: #2c2c2c;
-            --chat-user-bg: #0d47a1;
-            --text-color: #ffffff;
-            --accent-color: #ffb300;
-            --error-color: #ff5252;
-        }
+    <title>Frau Elsa - AI Tutor Němčiny (Offline Branching)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #000000;
-            color: var(--text-color);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-
-        /* Mobilní kontejner uprostřed obrazovky */
-        .app-container {
-            width: 100%;
-            max-width: 450px;
-            height: 100vh;
-            background-color: var(--bg-color);
-            display: flex;
-            flex-direction: column;
-            box-shadow: 0 0 20px rgba(0,0,0,0.8);
-        }
-
-        @media (min-width: 450px) {
-            .app-container {
-                height: 85vh;
-                border-radius: 20px;
-                overflow: hidden;
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            500: '#f43f5e',
+                            600: '#e11d48',
+                            700: '#be123c',
+                            900: '#881337',
+                        },
+                        dark: {
+                            bg: '#0f172a',
+                            card: '#1e293b',
+                            border: '#334155',
+                            text: '#f8fafc',
+                            muted: '#94a3b8'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    }
+                }
             }
         }
-
-        /* Záhlaví aplikace */
-        .header {
-            background-color: var(--panel-bg);
-            padding: 12px 15px;
-            display: flex;
-            align-items: center;
-            border-bottom: 1px solid #333;
-        }
-
-        .avatar {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background-color: #aaa;
-            margin-right: 12px;
-            border: 2px solid var(--accent-color);
-            overflow: hidden;
-        }
-
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        .header-info h1 {
-            margin: 0;
-            font-size: 15px;
-            font-weight: bold;
-        }
-
-        .header-info p {
-            margin: 2px 0 0 0;
-            font-size: 11px;
-            color: #4caf50;
-        }
-
-        /* Oblast chatu */
-        .chat-area {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .msg {
-            max-width: 80%;
-            padding: 10px 14px;
-            border-radius: 16px;
-            line-height: 1.4;
-            font-size: 14px;
-        }
-
-        .msg-bot {
-            background-color: var(--chat-bot-bg);
-            align-self: flex-start;
-            border-top-left-radius: 0;
-        }
-
-        .msg-user {
-            background-color: var(--chat-user-bg);
-            align-self: flex-end;
-            border-top-right-radius: 0;
-        }
-
-        .translation-toggle {
-            color: var(--accent-color);
-            font-size: 11px;
-            cursor: pointer;
-            margin-top: 5px;
-            display: inline-block;
-            font-weight: bold;
-            user-select: none;
-        }
-
-        .translation-text {
-            color: #b0bec5;
-            font-size: 12px;
-            font-style: italic;
-            margin-top: 4px;
-            display: none;
-        }
-
-        .correction-box {
-            background-color: rgba(255, 82, 82, 0.15);
-            border-left: 3px solid var(--error-color);
-            padding: 6px 10px;
-            margin-bottom: 6px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-
-        /* Sekce nápověd */
-        .hints-section {
-            background-color: #1a1a1a;
-            padding: 10px;
-            border-top: 1px solid #333;
-        }
-
-        .hints-title {
-            font-size: 11px;
-            color: #aaa;
-            margin-bottom: 6px;
-            padding-left: 2px;
-        }
-
-        .hints-container {
-            display: flex;
-            gap: 6px;
-        }
-
-        .hint-btn {
-            flex: 1;
-            background-color: #3a3a3a;
-            color: white;
-            border: none;
-            padding: 8px 4px;
-            border-radius: 6px;
-            font-size: 11px;
-            cursor: pointer;
-            text-align: center;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Spodní panel vstupu */
-        .input-panel {
-            background-color: var(--panel-bg);
-            padding: 10px 12px;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-
-        .input-field {
-            flex: 1;
-            background-color: #2c2c2c;
-            border: none;
-            padding: 10px 14px;
-            border-radius: 20px;
-            color: white;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .btn-send {
-            background-color: #2196f3;
-            color: white;
-            border: none;
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-        }
+    </script>
+    <style>
+        body { background-color: #0f172a; color: #f8fafc; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #e11d48; }
     </style>
 </head>
-<body>
+<body class="h-full flex flex-col font-sans antialiased overflow-hidden">
 
-    <div class="app-container">
-        <!-- 1. ZÁHLAVÍ -->
-        <div class="header">
-            <div class="avatar">
-                <img src="https://unsplash.com" alt="Mia">
+    <!-- Top Navigation -->
+    <header class="bg-dark-card border-b border-dark-border px-6 py-3 flex items-center justify-between z-10">
+        <div class="flex items-center space-x-3">
+            <div class="relative">
+                <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=300&q=80" alt="Frau Elsa" class="w-10 h-10 rounded-full object-cover border-2 border-brand-600">
+                <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-dark-card rounded-full"></span>
             </div>
-            <div class="header-info">
-                <h1>Mia - AI Deutschlehrerin</h1>
-                <p>Niveau A1 • 1. Pozdravy & Seznámení</p>
-            </div>
-        </div>
-
-        <!-- 2. CHATOVÉ OKNO -->
-        <div class="chat-area" id="chatArea"></div>
-
-        <!-- 3. SEKCE NÁPOVĚD -->
-        <div class="hints-section">
-            <div class="hints-title">Nevíš jak odpovědět? Klikni na nápovědu:</div>
-            <div class="hints-container">
-                <button class="hint-btn" onclick="useHint(0)" id="hint0">-</button>
-                <button class="hint-btn" onclick="useHint(1)" id="hint1">-</button>
-                <button class="hint-btn" onclick="useHint(2)" id="hint2">-</button>
+            <div>
+                <h1 class="font-display font-bold text-lg flex items-center gap-2">
+                    Frau Elsa 
+                    <span class="bg-brand-600/20 text-brand-500 border border-brand-600/30 text-xs px-2 py-0.5 rounded font-mono">OFFLINE MODE</span>
+                </h1>
+                <p class="text-xs text-dark-muted">Inteligentní osobní lektorka němčiny (A1)</p>
             </div>
         </div>
 
-        <!-- 4. VSTUPNÍ PANEL -->
-        <div class="input-panel">
-            <input type="text" class="input-field" id="userInput" placeholder="Napiš německou odpověď..." onkeypress="handleKeyPress(event)">
-            <button class="btn-send" onclick="processUserResponse()">➔</button>
+        <div class="flex items-center space-x-3">
+            <button id="speechToggleBtn" onclick="toggleSpeech()" class="px-3 py-1.5 bg-dark-bg border border-dark-border hover:border-brand-600 text-xs font-medium rounded-lg transition-colors flex items-center gap-2">
+                <i id="volumeIcon" class="fas fa-volume-up text-brand-500"></i>
+                <span id="volumeStatus">Hlas zapnut</span>
+            </button>
         </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- Sidebar - Left (Topics) -->
+        <aside class="w-80 bg-dark-card border-r border-dark-border p-5 flex flex-col justify-between hidden md:flex">
+            <div class="space-y-6">
+                <!-- Profile Summary Card -->
+                <div class="bg-dark-bg p-4 rounded-xl border border-dark-border text-center relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-b from-brand-600/10 to-transparent pointer-events-none"></div>
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=500&q=80" alt="Frau Elsa" class="w-28 h-28 mx-auto rounded-full object-cover border-4 border-brand-600 shadow-lg shadow-brand-600/20 mb-3">
+                    <h2 class="font-display font-bold text-lg text-white">Frau Elsa</h2>
+                    <p class="text-xs text-brand-500 italic mb-2">"Hallo! Ich bin Elsa. Schön dich zu sehen!"</p>
+                    <div class="inline-flex items-center gap-2 text-xs text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                        Připravena k mluvení
+                    </div>
+                </div>
+
+                <!-- Topic Selector -->
+                <div>
+                    <h3 class="text-xs font-semibold text-dark-muted uppercase tracking-wider mb-3 px-1">Konverzační témata (A1)</h3>
+                    <nav class="space-y-1.5" id="topicNav">
+                        <button onclick="changeTopic('start')" class="w-full text-left px-3.5 py-2.5 rounded-lg border border-brand-600 bg-brand-600/10 text-white font-medium text-sm flex items-center gap-3 transition-all">
+                            <i class="fas fa-comments text-brand-500 w-4"></i> 1. Pozdravy & Představení
+                        </button>
+                        <button onclick="changeTopic('restaurace')" class="w-full text-left px-3.5 py-2.5 rounded-lg border border-dark-border bg-dark-bg/50 text-dark-muted hover:text-white font-medium text-sm flex items-center gap-3 transition-all">
+                            <i class="fas fa-coffee text-amber-500 w-4"></i> 2. V kavárně & restauraci
+                        </button>
+                    </nav>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Chat Engine -->
+        <main class="flex-1 flex flex-col bg-dark-bg relative">
+            
+            <!-- Messages Scroll Area -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-4" id="chatContainer">
+                <!-- Zprávy budou generovány dynamicky sem -->
+            </div>
+
+            <!-- Recommended Hints Section -->
+            <div class="bg-dark-card border-t border-dark-border p-4">
+                <p class="text-xs font-semibold text-dark-muted uppercase tracking-wider mb-2 px-1">✦ Doporučené rychlé odpovědi podle kontextu:</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="hintsContainer">
+                    <button onclick="useHint(0)" id="hintBtn0" class="text-left bg-dark-bg hover:bg-dark-border p-3 rounded-xl border border-dark-border transition-all group"></button>
+                    <button onclick="useHint(1)" id="hintBtn1" class="text-left bg-dark-bg hover:bg-dark-border p-3 rounded-xl border border-dark-border transition-all group"></button>
+                    <button onclick="useHint(2)" id="hintBtn2" class="text-left bg-dark-bg hover:bg-dark-border p-3 rounded-xl border border-dark-border transition-all group"></button>
+                </div>
+            </div>
+
+            <!-- Input Bar -->
+            <div class="p-4 bg-dark-card border-t border-dark-border flex items-center gap-3">
+                <button class="w-10 h-10 rounded-xl bg-dark-bg border border-dark-border text-dark-muted hover:text-brand-500 transition-colors flex items-center justify-center">
+                    <i class="fas fa-microphone text-lg"></i>
+                </button>
+                <input type="text" id="userInput" onkeypress="handleKeyPress(event)" placeholder="Napište nebo řekněte zprávu..." class="flex-1 bg-dark-bg border border-dark-border rounded-xl px-4 py-2.5 text-sm text-white placeholder-dark-muted focus:outline-none focus:border-brand-600 transition-colors">
+                <button onclick="processUserResponse()" class="bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-5 py-2.5 rounded-xl transition-colors flex items-center gap-2">
+                    Odeslat <i class="fas fa-paper-plane text-xs"></i>
+                </button>
+            </div>
+        </main>
     </div>
 
     <script>
+        // DATA: Strom konverzace pro zkušební témata A1
         const conversationTree = {
             "start": {
-                "bot_de": "Hallo! Ich heiße Mia. Wie heißt du?",
-                "bot_cz": "Ahoj! Jmenuji se Mia. Jak se jmenuješ?",
-                "hints": ["Ich heiße Max.", "Mein Name ist Lukas.", "Ich bin Anna."],
+                "bot_de": "Hallo! Ich heiße Elsa. Schön, dass du da bist! Wie heißt du?",
+                "bot_cz": "Ahoj! Jmenuji se Elsa. Jsem ráda, že jsi tu! Jak se jmenuješ?",
+                "hints": [
+                    {"de": "Ich heiße Max.", "cz": "Jmenuji se Max."},
+                    {"de": "Mein Name ist Lukas.", "cz": "Mé jméno je Lukas."},
+                    {"de": "Ich bin Anna, und du?", "cz": "Já jsem Anna, a ty?"}
+                ],
                 "traps": [
-                    { "trigger": "ich heisse ist", "fix": "Pozor! Nemůžeš kombinovat 'ich heiße' a 'ist'. Správně je buď 'Ich heiße Max' nebo 'Mein Name ist Max'." },
-                    { "trigger": "mein name", "fix": "Nezapomeň, že v němčině se všechna podstatná jména píší velkým písmenem: 'Mein Name ist...'" }
+                    { "trigger": "ich heisse ist", "fix": "Pozor na kombinaci sloves! Nemůžeš říct 'ich heiße ist' (jmenuji se je). Správně je buď 'Ich heiße Max' nebo 'Mein Name ist Max'." }
                 ],
                 "next": "otazka_vek"
             },
             "otazka_vek": {
                 "bot_de": "Freut mich! Und wie alt bist du?",
                 "bot_cz": "Těší mě! A jak jsi starý/á?",
-                "hints": ["Ich bin 20 Jahre alt.", "Ich bin 25.", "Ich bin 30."],
-                "traps": [
-                    { "trigger": "ich habe", "fix": "Chyba v doslovném překladu! V němčině věk nevlastníš (nemáš), ale 'jsi' starý. Použij sloveso sein: 'Ich bin 25 Jahre alt'." }
+                "hints": [
+                    {"de": "Ich bin 25 Jahre alt.", "cz": "Je mi 25 let."},
+                    {"de": "Ich bin 30.", "cz": "Je mi 30."},
+                    {"de": "Ich bin 18 Jahre alt.", "cz": "Je mi 18 let."}
                 ],
-                "next": "otazka_bydliste"
-            },
-            "otazka_bydliste": {
-                "bot_de": "Interessant! Und wo wohnst du?",
-                "bot_cz": "Zajímavé! A kde bydlíš?",
-                "hints": ["Ich wohne in Prag.", "Ich wohne in Berlin.", "Ich wohne in Brünn."],
                 "traps": [
-                    { "trigger": "wohne bei", "fix": "Pokud mluvíš o městě, používá se předložka 'in' (v). Správně: 'Ich wohne in Prag'." }
+                    { "trigger": "ich habe", "fix": "Chyba v doslovném překladu! V němčině věk nevlastníš (nemáš), ale jsi starý. Místo 'Ich habe 25' musíte použít sloveso sein: 'Ich bin 25'." }
                 ],
-                "next": "konec"
+                "next": "konec_seznameni"
             },
-            "konec": {
-                "bot_de": "Das ist super! Vielen Dank für das Gespräch. Bis bald!",
-                "bot_cz": "To je skvělé! Děkuji moc za rozhovor. Brzy na shledanou!",
-                "hints": ["Danke, bis bald!", "Tschüss!", "Auf Wiedersehen!"],
-                "traps": [],
-                "next": "start"
-            }
-        };
-
-        let currentNode = "start";
-
-        function mluv(text) {
-            if ('speechSynthesis' in window) {
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'de-DE';
-                const voices = window.speechSynthesis.getVoices();
-                const femaleVoice = voices.find(v => v.lang.startsWith('de') && (v.name.includes('Female') || v.name.includes('Zira') || v.name.includes('Google')));
-                if (femaleVoice) utterance.voice = femaleVoice;
-                window.speechSynthesis.speak(utterance);
-            }
-        }
-
-        function renderBotMessage(nodeKey, correctionText = "") {
-            const node = conversationTree[nodeKey];
-            const chatArea = document.getElementById("chatArea");
-
-            let correctionHtml = "";
-            if (correctionText) {
-                correctionHtml = `<div class="correction-box">⚠️ <b>Oprava chyb:</b> ${correctionText}</div>`;
-            }
-
-            const msgDiv = document.createElement("div");
-            msgDiv.className = "msg msg-bot";
-            msgDiv.innerHTML = `
-                ${correctionHtml}
-                <div>${node.bot_de}</div>
+            "konec_seznameni": {
+                "bot_de": "Das ist super! Vielen Dank. Lass uns jetzt über ein anderes Thema sprechen.",
