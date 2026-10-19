@@ -1,147 +1,376 @@
 <!DOCTYPE html>
-<html lang="cs" class="h-full">
+<html lang="cs">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frau Elsa - AI Tutor Němčiny (Offline Branching)</title>
-    <!-- Tailwind CSS -->
-    <script src="https://tailwindcss.com"></script>
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cloudflare.com">
-    <!-- Google Fonts -->
-    <link href="https://googleapis.com" rel="stylesheet">
+    <title>Frau Elsa - AI Tutor Němčiny (Offline Mode)</title>
+    <style>
+        /* ČISTÉ LOKÁLNÍ STYLY - NEZÁVISLÉ NA EXTERNÍM TAILWINDU */
+        :root {
+            --bg-dark: #0f172a;
+            --card-dark: #1e293b;
+            --border-dark: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --brand-color: #e11d48;
+            --brand-hover: #be123c;
+            --emerald-bg: rgba(16, 185, 129, 0.1);
+            --emerald-text: #34d399;
+        }
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: {
-                            50: '#fff1f2',
-                            100: '#ffe4e6',
-                            500: '#f43f5e',
-                            600: '#e11d48',
-                            700: '#be123c',
-                            900: '#881337',
-                        },
-                        dark: {
-                            bg: '#0f172a',
-                            card: '#1e293b',
-                            border: '#334155',
-                            text: '#f8fafc',
-                            muted: '#94a3b8'
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Outfit', 'sans-serif'],
-                    }
-                }
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Horní lišta */
+        header {
+            background-color: var(--card-dark);
+            border-b: 1px solid var(--border-dark);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-dark);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .profile-img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--brand-color);
+        }
+
+        .header-title {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .badge {
+            background-color: rgba(225, 29, 72, 0.2);
+            color: #f43f5e;
+            border: 1px solid rgba(225, 29, 72, 0.3);
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin-left: 6px;
+        }
+
+        .header-subtitle {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+
+        .btn-top {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-dark);
+            color: var(--text-main);
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: border 0.2s;
+        }
+
+        .btn-top:hover {
+            border-color: var(--brand-color);
+        }
+
+        /* Hlavní pracovní plocha */
+        .workspace {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* Levý panel s tématy */
+        aside {
+            width: 320px;
+            background-color: var(--card-dark);
+            border-r: 1px solid var(--border-dark);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            border-r: 1px solid var(--border-dark);
+            overflow-y: auto;
+        }
+
+        .profile-card {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-dark);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .profile-card img {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--brand-color);
+            margin-bottom: 12px;
+        }
+
+        .profile-card h2 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .profile-card p {
+            font-size: 12px;
+            color: var(--brand-color);
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+
+        .status-online {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--emerald-text);
+            background-color: var(--emerald-bg);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(52, 211, 153, 0.2);
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--emerald-text);
+            border-radius: 50%;
+        }
+
+        .nav-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 8px;
+        }
+
+        .topic-group-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--brand-color);
+            margin: 10px 0 4px 0;
+            opacity: 0.8;
+        }
+
+        .topic-btn {
+            width: 100%;
+            text-align: left;
+            padding: 10px 12px;
+            background-color: rgba(15, 23, 42, 0.5);
+            border: 1px solid var(--border-dark);
+            color: var(--text-muted);
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .topic-btn:hover {
+            border-color: rgba(225, 29, 72, 0.5);
+            color: var(--text-main);
+        }
+
+        .topic-btn.active {
+            border-color: var(--brand-color);
+            background-color: rgba(225, 29, 72, 0.1);
+            color: var(--text-main);
+            font-weight: 500;
+        }
+
+        /* Pravá chatovací část */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: var(--bg-dark);
+        }
+
+        .banner-topic {
+            background-color: rgba(30, 41, 59, 0.4);
+            border-bottom: 1px solid var(--border-dark);
+            padding: 10px 24px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--brand-color);
+        }
+
+        .banner-topic span {
+            color: var(--text-main);
+            margin-left: 4px;
+        }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* Bubliny zpráv */
+        .msg-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            max-width: 700px;
+        }
+
+        .msg-row.user {
+            margin-left: auto;
+            justify-content: flex-end;
+        }
+
+        .msg-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid var(--brand-color);
+            flex-shrink: 0;
+        }
+
+        .msg-bubble {
+            background-color: var(--card-dark);
+            border: 1px solid var(--border-dark);
+            padding: 16px;
+            border-radius: 16px;
+            border-top-left-radius: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-1: 1;
+        }
+
+        .msg-row.user .msg-bubble {
+            background-color: rgba(225, 29, 72, 0.1);
+            border-color: rgba(225, 29, 72, 0.3);
+            border-top-left-radius: 16px;
+            border-top-right-radius: 0;
+            text-align: right;
+        }
+
+        .msg-meta {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+        }
+
+        .msg-name {
+            font-weight: 600;
+            color: var(--brand-color);
+        }
+
+        .msg-role {
+            font-size: 10px;
+            color: var(--text-muted);
+            background-color: var(--bg-dark);
+            padding: 1px 6px;
+            border-radius: 4px;
+            border: 1px solid var(--border-dark);
+        }
+
+        .msg-text {
+            font-size: 14px;
+            line-height: 1.5;
+            font-weight: 500;
+        }
+
+        .btn-translate {
+            background: none;
+            border: none;
+            color: var(--brand-color);
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            padding: 2px 0;
+            width: fit-content;
+        }
+
+        .translation-box {
+            background-color: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(51, 65, 85, 0.4);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 12px;
+            color: var(--text-muted);
+            font-style: italic;
+        }
+
+        .correction-box {
+            background-color: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 12px;
+            color: #fcd34d;
+            line-height: 1.4;
+        }
+
+        /* Spodní nápovědy */
+        .hints-panel {
+            background-color: var(--card-dark);
+            border-top: 1px solid var(--border-dark);
+            padding: 16px;
+        }
+
+        .hints-heading {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 10px;
+        }
+
+        .hints-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .hints-grid {
+                grid-template-columns: 1fr;
             }
         }
-    </script>
-    <style>
-        body { background-color: #0f172a; color: #f8fafc; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0f172a; }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: #e11d48; }
-    </style>
-</head>
-<body class="h-full flex flex-col font-sans antialiased overflow-hidden">
 
-    <!-- Top Navigation -->
-    <header class="bg-dark-card border-b border-dark-border px-6 py-3 flex items-center justify-between z-10">
-        <div class="flex items-center space-x-3">
-            <div class="relative">
-                <img src="https://unsplash.com" alt="Frau Elsa" class="w-10 h-10 rounded-full object-cover border-2 border-brand-600">
-                <span class="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-dark-card rounded-full"></span>
-            </div>
-            <div>
-                <h1 class="font-display font-bold text-lg flex items-center gap-2">
-                    Frau Elsa 
-                    <span class="bg-brand-600/20 text-brand-500 border border-brand-600/30 text-xs px-2 py-0.5 rounded font-mono">OFFLINE VERSION</span>
-                </h1>
-                <p class="text-xs text-dark-muted">Lokální trenažér větvených konverzací (A1)</p>
-            </div>
-        </div>
-
-        <div class="flex items-center space-x-3">
-            <button id="speechToggleBtn" onclick="toggleSpeech()" class="px-3 py-1.5 bg-dark-bg border border-dark-border hover:border-brand-600 text-xs font-medium rounded-lg transition-colors flex items-center gap-2">
-                <i id="volumeIcon" class="fas fa-volume-up text-brand-500"></i>
-                <span id="volumeStatus">Hlas zapnut</span>
-            </button>
-        </div>
-    </header>
-
-    <!-- Main Workspace -->
-    <div class="flex-1 flex overflow-hidden">
-        
-        <!-- Sidebar - Left (40 Topics grouped) -->
-        <aside class="w-80 bg-dark-card border-r border-dark-border p-4 flex flex-col justify-between hidden md:flex overflow-y-auto">
-            <div class="space-y-4">
-                <!-- Profile Summary Card -->
-                <div class="bg-dark-bg p-4 rounded-xl border border-dark-border text-center relative overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-b from-brand-600/10 to-transparent pointer-events-none"></div>
-                    <img src="https://unsplash.com" alt="Frau Elsa" class="w-24 h-28 mx-auto rounded-full object-cover border-4 border-brand-600 shadow-lg shadow-brand-600/20 mb-3">
-                    <h2 class="font-display font-bold text-base text-white">Frau Elsa</h2>
-                    <p class="text-[11px] text-brand-500 italic mb-2">"Hallo! Ich bin Elsa. Lass uns lernen!"</p>
-                    <div class="inline-flex items-center gap-1.5 text-[10px] text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
-                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        100% Offline
-                    </div>
-                </div>
-
-                <!-- Topic Selector Container -->
-                <div>
-                    <h3 class="text-[10px] font-bold text-dark-muted uppercase tracking-wider mb-2 px-1">Seznam 40 témat (A1)</h3>
-                    <div class="space-y-3" id="topicGroupsContainer">
-                        <!-- Skupiny témat se vygenerují přes JS -->
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Main Chat Engine -->
-        <main class="flex-1 flex flex-col bg-dark-bg relative">
-            <!-- Current Topic Title Banner -->
-            <div class="bg-dark-card/40 border-b border-dark-border px-6 py-2 text-xs font-semibold text-brand-500 flex items-center gap-2">
-                <i class="fas fa-graduation-cap"></i> Aktuální téma: <span id="currentTopicTitle" class="text-white">1. Pozdravy & Představení se</span>
-            </div>
-            
-            <!-- Messages Scroll Area -->
-            <div class="flex-1 overflow-y-auto p-6 space-y-4" id="chatContainer"></div>
-
-            <!-- Recommended Hints Section -->
-            <div class="bg-dark-card border-t border-dark-border p-4">
-                <p class="text-xs font-semibold text-dark-muted uppercase tracking-wider mb-2 px-1">✦ Tři možnosti jak odpovědět (kliknutím odešlete):</p>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3" id="hintsContainer">
-                    <button onclick="useHint(0)" id="hintBtn0" class="text-left bg-dark-bg hover:bg-dark-border p-3 rounded-xl border border-dark-border transition-all group"></button>
-                    <button onclick="useHint(1)" id="hintBtn1" class="text-left bg-dark-bg hover:bg-dark-border p-3 rounded-xl border border-dark-border transition-all group"></button>
-                    <button onclick="useHint(2)" id="hintBtn2" class="text-left bg-dark-bg hover:bg-dark-border p-3 rounded-xl border border-dark-border transition-all group"></button>
-                </div>
-            </div>
-
-            <!-- Input Bar -->
-            <div class="p-4 bg-dark-card border-t border-dark-border flex items-center gap-3">
-                <button onclick="simulateVoiceInput()" class="w-10 h-10 rounded-xl bg-dark-bg border border-dark-border text-dark-muted hover:text-brand-500 transition-colors flex items-center justify-center" title="Simulovat mluvení">
-                    <i class="fas fa-microphone text-lg"></i>
-                </button>
-                <input type="text" id="userInput" onkeypress="handleKeyPress(event)" placeholder="Napište německou odpověď..." class="flex-1 bg-dark-bg border border-dark-border rounded-xl px-4 py-2.5 text-sm text-white placeholder-dark-muted focus:outline-none focus:border-brand-600 transition-colors">
-                <button onclick="processUserResponse()" class="bg-brand-600 hover:bg-brand-700 text-white font-medium text-sm px-5 py-2.5 rounded-xl transition-colors flex items-center gap-2">
-                    Odeslat <i class="fas fa-paper-plane text-xs"></i>
-                </button>
-            </div>
-        </main>
-    </div>
-
-    <script>
-        // 40 TÉMAT: Kompletní offline konverzační databáze s uzly, překlady, nápovědami a gramatickými pastmi.
-        const topicsDatabase = {
-            // SKUPINA 1: OSOBNÍ INFORMACE & SEZNÁMENÍ
-            1: { name: "1. Pozdravy & seznámení", icon: "fa-comments", color: "text-brand-500", startNode: "t1_n1", nodes: {
-                "t1_n1": { bot_de: "Hallo! Ich heiße Elsa. Wie heißt du?", bot_cz: "Ahoj! Jmenuji se Elsa. Jak se jmenuješ?", hints: [{de:"Ich heiße Max.", cz:"Jmenuji se Max."}, {de:"Mein Name ist Lukas.", cz:"Mé jméno je Lukas."}, {de:"Ich bin Anna, und du?", cz:"Já jsem Anna, a ty?"}], traps: [{trigger:"ich heisse ist", fix:"Pozor na slovesa! Říká se buď 'Ich heiße Max' nebo 'Mein Name ist Max'."}], next: "t1_n2" },
-                "t1_n2": { bot_de: "Freut mich! Und wie alt bist du?", bot_cz: "Těší mě! A kolik je ti let?", hints: [{de:"Ich bin 25 Jahre alt.", cz:"Je mi 25 let."}, {de:"Ich bin 30.", cz:"Je mi 30."}, {de:"Ich bin 18.", cz:"Je mi 18."}], traps: [{trigger:"ich habe", fix:"Věk se v němčině pojí se slovesem 'sein' (být), ne 'haben' (mít). Správně: 'Ich bin 25'."}], next: "t1_end" },
-                "t1_end": { bot_de: "Super! Das war ein tolles Kennenlernen. Danke!", bot_cz: "Super! To bylo skvělé seznámení. Děkuji!", hints: [{de:"Danke auch!", cz:"Také děkuji!"}, {de:"Bitte sehr.", cz:"Prosím pěkně."}, {de:"Tschüss!", cz:"Ahoj! (při loučení)"}], traps: [], next: "t1_n1" }
-            }},
-            2: { name: "2. Moje rodina", icon: "fa-users", color: "text-blue-400", startNode: "t2_n1", nodes: {
+        .hint-card {
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-dark);
